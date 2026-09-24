@@ -28,9 +28,10 @@ Ce document prime sur tout autre fichier en cas de contradiction. Les éléments
 ### 2.1 Tuiles hexagonales
 
 - Deux familles :
-  - **Monochrome** : 1 seule couleur d'arête (les 6 arêtes), accepte **1 type** de jeton.
-  - **Bicolore** : 2 couleurs d'arête (**3 arêtes consécutives par couleur**), accepte
-    **2 ou 3 types** de jetons.
+  - **Monochrome** : 1 seule couleur d'arête (les 6 arêtes), accepte **1 type** de jeton (icône unique au centre).
+  - **Bicolore** : 2 couleurs d'arête (**3 arêtes consécutives par couleur** séparées par une courbe frontière esthétique naturelle), accepte **2 ou 3 types** de jetons :
+    - *2 types acceptés* : 2 icônes réparties de part et d'autre de la frontière naturelle.
+    - *3 types acceptés* : 3 icônes disposées en **triangle équilatéral centré** avec **superposition cyclique entrelacée** (le jeton 1 dépasse sur le 2, qui dépasse sur le 3, qui dépasse sur le 1, façon anneaux borroméens / triquetra).
 
 ### 2.2 Jetons
 

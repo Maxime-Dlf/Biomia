@@ -468,48 +468,51 @@ Le jeu **ne doit pas être plat**. Voici la conception technique du rendu en vol
        ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒   <-- Ombre portée douce sur le tapis de jeu
 ```
 
-### 6.2 Analyse de Pertinence Technique : PBR vs POM
+### 6.2 Analyse Graphique : PBR Multi-Textures vs Shader Universel "Pion de Luxe"
 
-À la question : *« Serait-il utile et pertinent d'ajouter un système de PBR et/ou POM pour augmenter la qualité de jeu ou est-ce de la difficulté inutile ? »*
+À la question : *« Pour ce qui est de la gestion du PBR, est-ce que cela ajoute une complexité excessive pour les artistes de modding et est-ce qu'on ne pourrait pas juste appliquer un shader propre pour tous les jetons afin d'obtenir un visuel de jeu de société premium sans chercher le réalisme des textures ? »*
 
-Voici l'analyse d'ingénierie graphique et la décision retenue :
+**La réponse est OUI à 100%. L'analyse d'ergonomie technique confirme pleinement cette orientation :**
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        COMPARAISON PBR vs POM                          │
+│             COMPARAISON PBR CLASSIQUE vs SHADER UNIVERSEL              │
 ├────────────────────────────┬───────────────────────────────────────────┤
-│ 1. PBR Lite (Albedo +      │ • TRÈS PERTINENT & RETENU                 │
-│    Normal + Roughness)     │ • Rendu magnifique des pions et biomes    │
-│                            │ • Brillance laquée, rugosité de pierre    │
-│                            │ • Coût GPU quasi-nul (60 FPS constants)   │
+│ 1. PBR Lourd Multi-Cartes  │ • PIÈGE POUR LE MODDING (ÉCARTÉ)          │
+│    (Albedo + Normal +      │ • Exige 4 à 5 fichiers par jeton !        │
+│     Roughness + Metal)     │ • Fait fuir 95% des créateurs communautaires│
+│                            │ • Risques d'incohérences de rendu         │
 ├────────────────────────────┼───────────────────────────────────────────┤
-│ 2. POM (Parallax Occlusion │ • DIFFICULTÉ INUTILE & ÉCARTÉ             │
-│    Mapping complet)        │ • Raymarching lourd par pixel (16-32 it.) │
-│                            │ • Fait ramer mobiles et PC sans gros GPU  │
-│                            │ • Gain imperceptible en vue de dessus     │
-│                            │ • Déformations parasites aux bords        │
+│ 2. Shader Universel        │ • SOLUTION IDÉALE RETENUE (ZÉRO CONTRAINTE)│
+│    "Pion de Luxe"          │ • 1 SEUL FICHIER PNG 2D transparent requis│
+│    (Rendu Procédural 2.5D) │ • Biseau, laque et reflets 100% procéduraux│
+│                            │ • Finition tactile plateau de jeu premium │
+│                            │ • 60 FPS constants, tous navigateurs      │
 └────────────────────────────┴───────────────────────────────────────────┘
 ```
 
-1. **Le PBR (Physically Based Rendering) — OUI (Version "PBR Lite" Optimisée)** :
-   - **Pourquoi c'est indispensable** : Le PBR applique les lois physiques réelles de la lumière (modèle Cook-Torrance / Blinn-Phong étendu) via 3 couches : texture diffuse (Albedo), relief de surface (Normal Map) et rugosité/spéculaire (Roughness/Metallic).
-   - **Le résultat "WOW"** : Les pions en bois laqué brillent de reflets spéculaires réalistes, les tuiles ont du grain tangible, et la lumière solaire dynamique (§6.7) ricoche naturellement sur les matières.
-   - **Performance** : 1 seul calcul vectoriel direct par fragment. Zéro surcoût, parfaitement fluide sur tous les navigateurs.
-2. **Le POM (Parallax Occlusion Mapping) — NON (Difficulté Inutile & Contre-Performant)** :
-   - **Pourquoi l'écarter** : Le POM simule des crevasses et de la profondeur 3D à l'intérieur d'un polygone plat en effectuant une boucle de raymarching (16 à 32 lectures de texture par pixel). Sur un plateau de 50 tuiles avec de multiples pions, cela saturerait les GPU intégrés (Intel Iris/UHD) et viderait la batterie des mobiles.
-   - **Absence de valeur ajoutée** : En vue de dessus ou à 45° isométrique, un **Normal Mapping bien calibré avec des chanfreins (Bevels géométriques) et de l'Ambient Occlusion de contact** produit un résultat visuel à 98% identique sans aucune pénalité de framerate.
+1. **Pourquoi le PBR classique multi-cartes est un piège pour le Modding** :
+   - Un pipeline PBR standard exigerait que l'artiste moddeur fournisse pour chaque jeton : une texture diffuse (Albedo), une Normal Map (calcul d'espace tangent complexe), une Roughness Map et une Ambient Occlusion Map.
+   - 95% des joueurs et créateurs de mods souhaitent simplement dessiner un logo 2D, exporter une icône vectorielle ou détourer un dessin. Les forcer à fabriquer des cartes normales ou de rugosité tuerait l'écosystème de modding dès le départ.
+2. **La Solution Retenue : Le Shader Universel Procédural "Pion de Luxe"** :
+   - **Ce que fournit l'artiste moddeur** : Uniquement **1 seule image PNG 2D avec transparence** (carré 1:1, ex: 256×256 px).
+   - **Ce que génère automatiquement le Shader Universel sur le GPU** :
+     - **Biseau et relief 2.5D procédural (*Procedural Bevel*)** : Le fragment shader analyse le gradient du canal alpha et la luminance locale (filtre de Sobel instantané sur les bords) pour sculpter un chanfrein arrondi tangible. Le pion prend immédiatement du volume comme un pion en bois sculpté ou un jeton de poker épais.
+     - **Vernis protecteur laqué (*Clearcoat Gloss*)** : Application procédurale d'un reflet spéculaire soyeux (modèle Blinn-Phong étendu) qui réagit à la lumière directionnelle du soleil local (§6.7).
+     - **Micro-occlusion et liseré de contact** : Une fine bordure biseautée avec ombre de contact douce est projetée directement sous le pion sur la tuile réceptrice.
+     - **Harmonie visuelle absolue** : Qu'un artiste importe un dessin au feutre, un pixel art, une aquarelle ou un sticker vectoriel, le shader transforme automatiquement l'image 2D en une pièce de collection tangible, homogène avec le reste du matériel de jeu.
 
 ### 6.3 Éclairage & Ambiance
-- **Lumière directionnelle globale** : Source lumineuse douce orientée à 45° (haut-gauche), créant des rehauts lumineux spéculaires sur les bords supérieurs des tuiles et des jetons.
+- **Lumière directionnelle globale** : Source lumineuse douce orientée selon l'heure locale, créant des rehauts lumineux spéculaires sur les bords supérieurs des tuiles et des jetons.
 - **Occlusion ambiante de contact** : Entre deux tuiles adjacentes, un fin trait d'ombre de contact renforce la sensation d'assemblage physique de pièces de jeu de société de luxe.
 
-### 6.4 Volumétrie des Jetons
-- Les jetons sont représentés comme des **pions en bois massif ou en acrylique laqué** :
-  - Disque surélevé avec réflexion spéculaire (brillance).
-  - Épaisseur visible projetant une ombre sur la tuile réceptrice.
-  - Halo de couleur du joueur propriétaire incrusté subtilement sous le pion.
+### 6.4 Volumétrie des Jetons & Matérialité
+- Les jetons physiques posés sur le plateau adoptent le rendu du shader "Pion de Luxe" :
+  - Disque surélevé avec réflexion spéculaire (brillance laquée satinée).
+  - Épaisseur visible projetant une ombre portée nette sur la tuile réceptrice.
+  - Halo de couleur du joueur propriétaire incrusté subtilement sous le pion au niveau du sol.
 
-### 6.4 Animations & "Game Feel" Professionnel (Détail Exhaustif)
+### 6.5 Animations & "Game Feel" Professionnel (Détail Exhaustif)
 
 Le dynamisme visuel repose sur une hiérarchisation claire des animations selon l'enjeu tactique :
 
@@ -524,7 +527,7 @@ Le dynamisme visuel repose sur une hiérarchisation claire des animations selon 
    - **Animation de fracture** : Les jetons invalidés subissent une animation de fissure avec craquement sonore, puis se séparent visuellement en **deux moitiés brisées**.
    - **Persistance visuelle** : Les jetons brisés **restent affichés sous leur forme brisée à l'écran pour tous les joueurs** jusqu'à la fin de la partie. Cela matérialise en permanence sur le plateau les "crasses" réussies et les points perdus.
 
-### 6.5 Système de Lisibilité et Surbrillance des Structures
+### 6.6 Système de Lisibilité et Surbrillance des Structures
 Pour garantir une clarté visuelle instantanée et éviter toute confusion entre la maîtrise du territoire (environnements) et les combinaisons d'animaux/jetons, le jeu applique deux méthodes de rendu géométriquement séparées :
 
 ```
@@ -552,7 +555,7 @@ Pour garantir une clarté visuelle instantanée et éviter toute confusion entre
    - **Jetons isolés (Ronds)** : Un anneau ou halo circulaire au sol est projeté sous le pion pour indiquer sa propriété sans nécessiter de trait.
    - **Structures brisées** : Le trait de liaison devient rouge sombre en pointillés et les pions brisés en deux restent posés au-dessus.
 
-### 6.6 Shaders Dynamiques Solaires & Cycle Jour/Nuit (100% Respect de la Vie Privée)
+### 6.7 Shaders Dynamiques Solaires & Cycle Jour/Nuit (100% Respect de la Vie Privée)
 
 Le rendu visuel s'adapte en temps réel au cycle solaire pour offrir une atmosphère immersive et vivante.
 
@@ -602,10 +605,23 @@ Le shader 2.5D calcule la direction de la lumière principale (`u_sunDirection`)
    - *Couche 4 (Arêtes colorées)* : 6 segments de contour nets identifiant précisément les couleurs d'arêtes pour la règle de jeu (3 d'une couleur, 3 de l'autre).
 3. **Superposition des Jetons Autorisés (Symboles d'accueil)** :
    - En début de partie, l'algorithme équilibré calcule la capacité d'accueil de la tuile (1, 2 ou 3 types de jetons acceptés).
-   - Les icônes correspondantes sont disposées sous forme de disques le long ou de part et d'autre de la frontière naturelle :
+   - Les icônes correspondantes sont disposées sous forme de disques selon le nombre de jetons acceptés :
      - *1 jeton* : 1 icône discrète au centre de la case.
      - *2 jetons* : 2 icônes réparties harmonieusement de part et d'autre de la courbe frontière (identique à l'illustration Cascadia de référence).
-     - *3 jetons* : 3 icônes disposées en constellation équilibrée.
+     - *3 jetons (Placement en Triangle & Entrelacement Cyclique Borroméen)* :
+       - **Disposition géométrique** : Les trois jetons forment un triangle équilatéral parfait légèrement superposé au centre de la pièce hexagonale.
+       - **Superposition cyclique entrelacée (1 sur 2 sur 3 sur 1)** :
+         Contrairement à Cascadia classique (qui empile les disques selon un Z-index linéaire plat où un jeton est relégué en dessous des deux autres), CrasseCadia applique une **superposition cyclique entrelacée** (façon anneaux borroméens / triquetra) :
+         - Le **jeton 1** dépasse sur le **jeton 2** ;
+         - Le **jeton 2** dépasse sur le **jeton 3** ;
+         - Le **jeton 3** dépasse sur le **jeton 1** !
+       - **Algorithme de rendu (Canvas / WebGL Stencil Clipping)** :
+         Pour surmonter le paradoxe visuel 2D ($1 \succ 2 \succ 3 \succ 1$) sans artefacts de z-fighting 3D :
+         1. Tracer le Jeton 3 complet (avec son ombre au sol).
+         2. Tracer le Jeton 2 complet par-dessus (recouvrant le quadrant adjacent de Jeton 3).
+         3. Tracer le Jeton 1 complet par-dessus (recouvrant le quadrant adjacent de Jeton 2).
+         4. Appliquer un masque de découpe (*stencil / clip path*) centré exclusivement sur la lentille d'intersection entre Jeton 3 et Jeton 1, et y ré-émettre le fragment supérieur de Jeton 3 avec son biseau et son ombre propre.
+         Le rendu obtenu est visuellement saisissant : les 3 jetons apparaissent physiquement imbriqués en boucle fermée au cœur de la tuile, avec un équilibre visuel parfait.
 4. **Pose finale du Jeton Joueur** :
    - Lorsque le joueur pose son jeton physique, celui-ci vient masquer les symboles d'accueil avec un pion 2.5D surélevé portant la couleur du joueur.
 
@@ -838,12 +854,13 @@ Toutes les spécifications techniques, sécuritaires et de game design sont dés
 2. **Modes de Jeu & File 2v2 Classée** :
    - Mode Classé intégrant une file dédiée **2v2 par Équipe** (avec ELO d'équipe) en plus du 1v1 et du 4-Joueurs FFA.
    - Mode Personnalisé **débridé jusqu'à 30+ pour tous les paramètres** (jetons, biomes, tours, jokers), avec sliders manipulables à la souris (drag) et au clavier via flèches gauche/droite à l'unité.
-3. **Affichage, Lisibilité & Découpage Cascadia des Tuiles** :
+3. **Affichage, Lisibilité, Découpage Cascadia & Superposition Cyclique des Tuiles** :
    - Tuiles bicolores Cascadia : **3 arêtes consécutives par biome** séparées par une **courbe frontière esthétique organique** (falaise, berge, lisière), avec symboles d'accueil répartis de part et d'autre.
+   - Tuiles à 3 jetons : **Disposition en triangle équilatéral centré** avec **superposition cyclique entrelacée** (J1 sur J2, J2 sur J3, J3 sur J1, style nœud borroméen) rendue sans artefact via clipping stencil d'intersection.
    - Lisibilité des structures : Liseré coloré entourant les biomes, et lignes de liaison reliant les centres des tuiles **en passant sous les pions 2.5D**.
-4. **Moteur Graphique 2.5D, PBR Lite & Shaders Solaires** :
-   - **PBR Lite retenu** (Albedo + Normal Map + Roughness/Specular) pour sublimer le bois laqué et les textures de biomes à 60 FPS constants.
-   - **POM complet formellement écarté** pour éviter toute chute de framerate sur mobile/PC modeste.
+4. **Moteur Graphique 2.5D, Shader Universel "Pion de Luxe" & Shaders Solaires** :
+   - **Shader Universel Procédural pour jetons retenu** : 1 seule image PNG 2D transparente requise pour les moddeurs et artistes. Finition bois/acrylique laqué de luxe, chanfrein arrondi et reflets spéculaires générés 100% procéduralement par le GPU à 60 FPS constants.
+   - **PBR multi-cartes complexe et POM lourd formellement écartés** pour éliminer toute barrière au modding et éviter les chutes de framerate.
    - Poses à fort impact (rotation 360°, onde de choc, vague de saut des tuiles) et jetons fracturés persistants.
    - Shaders solaires dynamiques synchronisés sur l'heure locale **sans géolocalisation**.
    - Shaders et particules saisonniers pour le mode classé.
