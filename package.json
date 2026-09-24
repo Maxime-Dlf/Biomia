@@ -1,0 +1,5 @@
+{
+  "name": "crassecadia",
+  "private": true,
+  "workspaces": ["shared", "server", "client"]
+}
