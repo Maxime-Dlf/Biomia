@@ -3,6 +3,8 @@ import { playStep, uiState } from './play.ts';
 
 /** Partie complète en 2 manches contre un bot, jouée par l'interface jusqu'à l'écran de fin. */
 test('partie complète jusqu’à l’écran de fin', async ({ page }, info) => {
+  // Une centaine de coups joués par l'interface : plus d'une minute sur la CI, sans GPU.
+  test.setTimeout(180_000);
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');

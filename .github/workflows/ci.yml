@@ -39,4 +39,6 @@ jobs:
         with:
           name: playwright-results
           path: apps/client/e2e/.results
+          # Dossier caché (`.results`) : exclu par défaut par upload-artifact v4.
+          include-hidden-files: true
           retention-days: 7
