@@ -14,7 +14,7 @@
 | Développeur | Périmètre | Outils à apprendre |
 |---|---|---|
 | **Dev A** | Backend, logique, règles, serveur | Node.js, TypeScript, Vitest, Colyseus, Git |
-| **Dev B** | Frontend, rendu, interactions | TypeScript, Vite, Phaser 3, Git |
+| **Dev B** | Frontend, rendu, interactions | TypeScript, Vite, PixiJS v8, Git |
 
 ---
 
@@ -88,7 +88,7 @@ CrasseCadia/
 ├── package.json          # racine : déclare les workspaces npm
 ├── shared/               # types + règles pures (Dev A) — partagé par les deux autres
 ├── server/               # serveur Colyseus (Dev A)
-└── client/               # Vite + Phaser (Dev B)
+└── client/               # Vite + PixiJS v8 (Dev B)
 ```
 
 - `shared/` : le **contrat commun** (types, géométrie hex, règles). Ni serveur ni
@@ -143,8 +143,8 @@ npm install -D typescript vitest -w shared
 npm install colyseus@^0.17.10 @colyseus/schema@^4.0.31 -w server
 npm install -D typescript tsx vitest -w server
 
-# client — Phaser + Vite + TypeScript
-npm install phaser -w client
+# client — PixiJS v8 + Vite + TypeScript
+npm install pixi.js@^8 -w client
 npm install -D vite typescript -w client
 ```
 
@@ -157,7 +157,7 @@ npm install -D vite typescript -w client
 | `colyseus` | Framework **multijoueur temps réel** (salons, synchronisation d'état) | https://docs.colyseus.io/ |
 | `@colyseus/schema` | Définit l'**état synchronisé** entre serveur et clients | https://docs.colyseus.io/ |
 | `tsx` | Exécute le TypeScript **directement** dans Node.js (sans compiler à la main) | https://tsx.is/ |
-| `phaser` | Moteur de **jeu 2D** (scènes, sprites, caméra, entrées) | https://docs.phaser.io/ |
+| `pixi.js` | Moteur de **rendu 2D/2.5D accéléré WebGL/WebGPU** ultra-rapide | https://pixijs.com/ |
 | `vite` | **Serveur de développement** + bundler ultra-rapide | https://vitejs.dev/ |
 
 - `-D` (devDependency) : outil de développement uniquement, pas embarqué en production.
@@ -354,7 +354,7 @@ export default defineConfig({
 |---|---|---|---|---|
 | 1 | **TypeScript** | Langage typé compilé en JS | https://www.typescriptlang.org/docs/ | variables, fonctions, objets, boucles |
 | 2 | **Vite** | Serveur de dev + bundler | https://vitejs.dev/guide/ | démarrer un projet |
-| 3 | **Phaser 3** | Moteur de jeu 2D | https://docs.phaser.io/ | scènes, sprites, caméra, clics |
+| 3 | **PixiJS v8** | Moteur de rendu WebGL/WebGPU | https://pixijs.com/8.x/guides/getting-started | conteneurs, sprites, graphics, caméra/clics |
 | 4 | **Git** | Versionnage | https://git-scm.com/doc | `commit`, `pull`, `push` |
 
 **Exercice de validation Dev B** : afficher une **grille hexagonale statique** (données
@@ -397,11 +397,11 @@ arbitraires) avec `hexToPixel`, puis détecter un clic sur un hex avec `pixelToH
 |---|---|---|---|---|
 | 1 | JavaScript | OpenClassrooms « Apprenez à programmer avec JavaScript » | FR | https://openclassrooms.com/fr/courses/7696886-apprenez-a-programmer-avec-javascript |
 | 2 | TypeScript | OpenClassrooms « Découvrez TypeScript » | FR | https://openclassrooms.com/fr/courses/8039116-decouvrez-typescript |
-| 3 | Phaser 3 | Tutoriel officiel « Making your first Phaser game » + GameDev Academy | EN | https://docs.phaser.io/phaser/getting-started/making-your-first-phaser-game · https://gamedevacademy.org/phaser-3-tutorial/ |
+| 3 | PixiJS v8 | Documentation officielle PixiJS v8 + Guide « Getting Started » | EN | https://pixijs.com/8.x/guides/getting-started · https://pixijs.com/8.x/examples |
 | 4 | Vite | Guide officiel | EN | https://vitejs.dev/guide/ |
 | 5 | Git | OpenClassrooms « Gérez du code avec Git et GitHub » | FR | https://openclassrooms.com/fr/courses/7162856-gerez-du-code-avec-git-et-github |
 
-> **Remarques** : Colyseus et Phaser n'ont pas de formation francophone dédiée — on
+> **Remarques** : Colyseus et PixiJS n'ont pas de formation francophone dédiée — on
 > apprend via leur documentation officielle et leurs tutoriels pas-à-pas. France-IOI
 > (https://www.france-ioi.org/) peut servir d'entraînement algorithmique (logique,
 > boucles, fonctions) pour Dev A, qui a déjà des bases en Python/C.
@@ -458,15 +458,18 @@ champ »).
 |---|---|
 | `EnvironmentId` | enum des **5 couleurs** d'environnement |
 | `TokenShape` | enum des **5 formes** (`Carre`, `Triangle`, `Coeur`, `Rond`, `Etoile`) |
+| `TokenTier` | enum des tiers (`TierA`, `TierB`, `TierC`, `TierD` — Tier D étant la référence v1) |
+| `SecretObjectiveCard` | `{ id, tier, value, title, description, isCompleted }` |
+| `GraphicProfile` | `'normal' \| 'low' \| 'ultra-low'` (profils de performance client) |
 | `Tile` | `q`, `r`, `edges[6]`, `acceptedShapes[]`, `tokenShape`, `tokenOwnerId`, `tileOwnerId`, `turnPlaced` |
 | `Phase` | états du tour (`setup`, `waiting`, `reroll`, `chooseTile`, `placeTile`, `chooseToken`, `placeToken`, `confirm`, `scoring`, `gameOver`) |
 | `MarketSlot` | `{ tileId, tokenShape }` (un emplacement du marché) |
-| `PlayerState` | `{ id, nickname, avatarUrl, teamId, score, jokers }` |
-| `GameState` | `board`, `players`, `currentPlayerId`, `phase`, `turnNumber`, `totalTiles`, `market`, `tokenPool`, `environmentMinSize`, `rerollAvailable`, `winnerId` |
-| `Move` | union des coups (`placeTile`, `placeToken`, `skipToken`, `reroll`, `undo`, `confirmTurn`) |
+| `PlayerState` | `{ id, nickname, avatarUrl, teamId, score, jokers, objectives }` |
+| `GameState` | `board`, `players`, `currentPlayerId`, `phase`, `turnNumber`, `totalTiles`, `market`, `tokenPool`, `environmentMinSize`, `rerollAvailable`, `winnerId`, `activeTier` |
+| `Move` | union des coups (`placeTile`, `placeToken`, `skipToken`, `reroll`, `undo`, `confirmTurn`, `selectObjectives`) |
 | `MoveResult` | `{ ok, reason?, newState? }` |
 
-**Ordre de codage** : les enums d'abord → `Tile` → `MarketSlot` / `PlayerState` →
+**Ordre de codage** : les enums d'abord → `Tile` / `SecretObjectiveCard` → `MarketSlot` / `PlayerState` →
 `GameState` (qui les assemble) → `Move` / `MoveResult` (qui référencent l'état).
 
 #### 7.1.3 `shared/rules.ts` — moteur de règles (fonctions pures)
@@ -481,15 +484,16 @@ par le client (prévisualisation) → aucun écart de score possible.
 | `getConnectedEnvironments(board)` | `board` | liste d'environnements (composantes connexes de tuiles par couleur d'arête) |
 | `computeEnvironmentScores(state)` | `GameState` | `Record<playerId, points>` (tuiles cumulées + bonus +2/+1) |
 
-**Partie 2 — Jetons (une fonction pure par forme, extensible)** :
+**Partie 2 — Jetons & Objectifs (registre modulaire extensible : Tier D de référence v1 & Tier A d'initiation)** :
 
 | Fonction | I | O |
 |---|---|---|
-| `scoreSquares(board)` | `board` | `Record<playerId, points>` |
-| `scoreTriangles(board)` | `board` | `Record<playerId, points>` |
-| `scoreHearts(board)` | `board` | `Record<playerId, points>` |
-| `scoreRounds(board)` | `board` | `Record<playerId, points>` |
-| `scoreStars(board)` | `board` | `Record<playerId, points>` |
+| `scoreSquares(board, tier?)` | `board` (+ option tier) | `Record<playerId, points>` (paires isolées en Tier D, trios compacts en Tier A) |
+| `scoreTriangles(board, tier?)` | `board` (+ option tier) | `Record<playerId, points>` (lignes droites en Tier D, chaînes d'arêtes en Tier A) |
+| `scoreHearts(board, tier?)` | `board` (+ option tier) | `Record<playerId, points>` (sans triangle direct en Tier D, paires espacées en Tier A) |
+| `scoreRounds(board, tier?)` | `board` (+ option tier) | `Record<playerId, points>` (solitaires isolés en Tier D, clans libres en Tier A) |
+| `scoreStars(board, tier?)` | `board` (+ option tier) | `Record<playerId, points>` (voisins distincts en Tier D, balises par biome en Tier A) |
+| `scoreObjectives(state, playerId)` | état + joueur | points des cartes d'objectifs secrets (+valeur si réussi, -valeur si échoué) |
 
 **Partie 3 — Noyau** :
 
@@ -498,13 +502,13 @@ par le client (prévisualisation) → aucun écart de score possible.
 | `getValidMoves(state, playerId)` | état + joueur | `Move[]` (coups légaux, pour l'affichage) |
 | `validateMove(state, move, playerId)` | état + coup + joueur | `boolean` (le coup est-il légal ?) |
 | `applyMove(state, move)` | état + coup | nouvel `GameState` (après application) |
-| `computeScores(state)` | `GameState` | `Record<playerId, points>` (agrège environnements + 5 formes + jokers) |
+| `computeScores(state)` | `GameState` | `Record<playerId, points>` (agrège environnements + jetons + objectifs + jokers) |
 | `resolveReroll(state)` | état | nouvel `GameState` ou `null` (relance, anti-boucle) |
 
 **Ordre de codage** : helpers internes → `getConnectedEnvironments` →
-`scoreSquares`/`scoreTriangles`/`scoreHearts`/`scoreRounds`/`scoreStars` →
+`scoreSquares`/`scoreTriangles`/`scoreHearts`/`scoreRounds`/`scoreStars`/`scoreObjectives` →
 `computeScores` (qui agrège tout) → `getValidMoves`/`validateMove`/`applyMove` (qui
-dépendent de tout) → `resolveReroll` en dernier. **Un test par forme** dès qu'elle est
+dépendent de tout) → `resolveReroll` en dernier. **Un test par forme et objectif** dès qu'elle est
 écrite.
 
 #### 7.1.4 `server/` — le serveur autoritaire Colyseus
@@ -525,32 +529,36 @@ vide qui démarre) → `GameRoom.ts` (`onCreate`/`onMessage`, en branchant
 
 ---
 
-### 7.2 Dev B — Frontend, rendu et interactions
+### 7.2 Dev B — Frontend, rendu et interactions (PixiJS v8)
 
-#### 7.2.1 `client/src/main.ts` — bootstrap Phaser
+#### 7.2.1 `client/src/main.ts` — bootstrap PixiJS v8
 
-**Fonction** : crée l'instance du jeu Phaser (dimensions, scènes). **Entrée** : aucune.
-**Sortie** : le jeu affiché dans la page.
+**Fonction** : initialise l'application PixiJS v8 (`const app = new Application(); await app.init({ ... })`), attache le canvas au DOM et instancie le conteneur de scène.
+**Sortie** : le canvas PixiJS affiché, responsive et réactif dans la page.
 
-#### 7.2.2 `client/src/scenes/GameScene.ts` — la scène principale
+#### 7.2.2 `client/src/engine/` — boucle de rendu PixiJS v8 & graphe de scène
 
-**Fonction** : affiche le plateau et gère les interactions.
+**Fonction** : affiche le plateau et gère les interactions selon le cycle de vie PixiJS v8 :
 
-| Méthode | I | O | Rôle |
-|---|---|---|---|
-| `preload()` | — | — | charge les images (sprites) |
-| `create()` | — | — | construit la grille à partir d'un **état mocké (arbitraire)** |
-| `update()` | temps écoulé | — | boucle de jeu (animations) |
-| gestionnaire de clic | position souris | hex ciblé | `pixelToHex` + envoi du coup |
+| Phase PixiJS v8 | Méthode / API | Rôle |
+|---|---|---|
+| Chargement des assets | `await Assets.load(...)` | charge les images de biomes et les PNG 2D transparents des jetons |
+| Construction de scène | `new Container()`, `new Graphics()` | construit la grille, les bordures d'arêtes, les masques vectoriels et le shader "Pion de Luxe" |
+| Entrelacement borroméen | Stencil buffer / clip path | gère la superposition cyclique 1 sur 2 sur 3 sur 1 des 3 symboles d'accueil |
+| Détection d'interaction | `app.stage.eventMode = 'static'`, `on('pointerdown')` | `pixelToHex` + surbrillance des cases légales + envoi du coup |
+| Boucle d'animation | `app.ticker.add((ticker) => ...)` | anime les poses, vagues de saut, lévitation et particules (selon profil de performance) |
 
-**Ordre de codage** : `preload` → `create` (rendu statique) → clic (`pixelToHex`) →
-`update` (animations). Travailler d'abord sur **données mockées**, sans réseau.
+**Ordre de codage** : chargement d'assets (`Assets.load`) → conteneurs et grille statique (`hexToPixel`) → clics (`pixelToHex`) → ticker d'animations. Travailler d'abord sur **données mockées**, sans réseau.
 
-#### 7.2.3 HUD (marché, score, minuteur, jokers)
+#### 7.2.3 `client/src/engine/performanceManager.ts` & HUD
 
-**Fonction** : afficher le **marché** (4 tuiles + 4 jetons, avec halo rouge si
-implaçable), le **score**, le **joueur courant**, le **minuteur** et les **jokers**.
-**I/O** : reçoit `GameState`, émet `Move` (choix de tuile/jeton, reroll, confirmation).
+**Fonction** :
+1. **Gestionnaire de performance (`PerformanceManager`)** :
+   - *Mode Normal* : rendu 2.5D complet, shaders solaires, particules saisonnières.
+   - *Mode Low Performance* : désactive les shaders solaires et lourds, éclairage fixe zénithal, zéro particule, animations allégées.
+   - *Mode Ultra Low Performance (Grille Éco)* : désactive 100% des shaders (rendu 2D plat direct), désactive 100% des animations (poses et fractures instantanées en 0 ms), charge les textures en SD, et autorise le réglage du *Render Scale* (50%/75%/100%) avec upscale matériel pour assurer 60 FPS sans altérer les règles du jeu.
+2. **HUD** : afficher le **marché** (4 tuiles + 4 jetons, avec halo rouge si implaçable), le **score**, le **joueur courant**, le **minuteur**, les **jokers**, les **cartes d'objectifs secrets** et le bouton d'options graphiques.
+**I/O** : reçoit `GameState`, émet `Move` (choix tuile/jeton, reroll, objectifs, confirmation).
 
 **Ordre de codage** : marché statique → score/joueur courant → minuteur → boutons
 (reroll, confirmation, retour) → halos rouges.

@@ -1,7 +1,7 @@
 # Règles du jeu — Document source de vérité (Phase 0)
 
-> **Statut** : verrouillé pour le **Tier A (v1)**.
-> **Version** : 1.2.
+> **Statut** : verrouillé pour la v1 (Spécification normative du **Tier D** de référence et du **Tier A** d'initiation).
+> **Version** : 1.3.
 > **Périmètre** : jeu web multijoueur temps réel sur **plateau hexagonal unique et
 > partagé**. Univers visuel et règles remaniés pour être juridiquement distincts de
 > Cascadia.
@@ -18,8 +18,8 @@ Ce document prime sur tout autre fichier en cas de contradiction. Les éléments
   accepte certains **types de jetons**.
 - Les joueurs peuvent **voler** les environnements et les structures de jetons des
   autres, et **saboter** leurs agencements.
-- Trois axes de score : **environnements**, **jetons** (Tier A) et **jokers**.
-- **Nombre de joueurs** : 2 à **8 recommandés** (plus possible, mais moins confortable).
+- Trois axes de score : **environnements**, **jetons** (Tier D de référence officielle ou Tier actif de la saison) et **jokers**.
+- **Nombre de joueurs** : 2 à **8 recommandés** (support technique jusqu'à 16, IA configurables en solo/amical).
 
 ---
 
@@ -226,18 +226,18 @@ Le tirage des tuiles en jeu doit être **équilibré** :
     bonus ; l'environnement perdant est **rétrogradé au grade suivant** (un plus grand
     environnement perdant concourt alors pour le bonus de +1).
 
-### 5.2 Jetons — Les 4 Tiers Officiels (Tiers A, B, C, D)
+### 5.2 Jetons — Les 4 Tiers Officiels et Spécification Normative (Tier D Référence & Tier A)
 
-> **Système de Tiers** : Les règles ci-dessous détaillées correspondent au **Tier D (Expert / Master)**, offrant un niveau d'exigence et d'interaction élevé. Le jeu intègre 4 Tiers officiels distincts pour renouveler les saisons et modes de jeu :
-> - **Tier A (Initiation & Dynamisme)** : Carrés en trios compacts (9 pts), Triangles d'arêtes (4 à 24 pts), Cœurs en paires espacées (6 pts), Ronds en clans libres de 3 à 5 (6 à 17 pts), Étoiles balises (3 pts par biome adjacent).
+> **Système de Tiers** : Le jeu intègre 4 Tiers officiels distincts pour renouveler les saisons et modes de jeu. Les règles détaillées en 5.2.1 à 5.2.6 correspondent au **Tier D (Expert / Master — Spécification normative de référence v1)**. La section 5.2.7 détaille le **Tier A (Initiation & Dynamisme)** :
+> - **Tier A (Initiation & Dynamisme — Spécifié en §5.2.7)** : Carrés en trios compacts (9 pts), Triangles d'arêtes (4 à 24 pts), Cœurs en paires espacées (6 pts), Ronds en clans libres de 3 à 5 (6 à 17 pts), Étoiles balises (3 pts par biome adjacent).
 > - **Tier B (Densité & Alignements)** : Carrés en échelle (14 pts), Triangles en chevrons zig-zag (6 à 21 pts), Cœurs en arbre ramifié (12 pts), Ronds en couronnes hexagonales (8 à 22 pts), Étoiles en pont stellaire entre 2 biomes (8 pts).
 > - **Tier C (Sabotage & Conflit Direct)** : Carrés en mur de rupture, Triangles en flèches prédatrices (siphonnent 4 pts), Cœurs parasitaires volant le contrôle, Ronds bloquants, Étoiles trou noir.
-> - **Tier D (Expert / Master — Spécification Normative ci-dessous)** : Paires strictes isolées, lignes droites, cœurs sans boucle triangulaire, ronds solitaires et diversité multiforme.
+> - **Tier D (Expert / Master — Spécifié ci-dessous en §5.2.1 à §5.2.6)** : Paires strictes isolées, lignes droites, cœurs sans boucle triangulaire, ronds solitaires et diversité multiforme.
 
 > Règle générale d'adjacence : « côte à côte » = **partage d'une arête complète**
 > (voisins hexagonaux).
 
-#### 5.2.1 Carrés (Tier D)
+#### 5.2.1 Carrés (Tier D — Paires Strictes Isolées)
 
 - Une **paire** = 2 jetons carrés **adjacents**.
 - Barème selon le nombre de paires du joueur :
@@ -248,7 +248,7 @@ Le tirage des tuiles en jeu doit être **équilibré** :
 - **Propriété** : le joueur qui **complète une paire** (pose le 2ᵉ carré) en obtient la
   pleine propriété.
 
-#### 5.2.2 Triangles
+#### 5.2.2 Triangles (Tier D — Ligne Droite Stricte)
 
 - Les jetons triangles placés **côte à côte** forment une **chaîne** en **ligne
   droite** (un des 3 axes de la grille hexagonale, 6 directions).
@@ -261,7 +261,7 @@ Le tirage des tuiles en jeu doit être **équilibré** :
   la **plus longue chaîne** en prend le contrôle ; des **chaînes secondaires** peuvent
   être collées à la principale.
 
-#### 5.2.3 Cœurs
+#### 5.2.3 Cœurs (Tier D — Chaînes & Boucles sans Triangle Direct)
 
 - Les cœurs placés **en chaîne adjacente** (peu importe l'orientation) rapportent des
   points.
@@ -273,7 +273,7 @@ Le tirage des tuiles en jeu doit être **équilibré** :
 - Les jetons du cycle triangulaire sont invalidés ; les **segments restants** sont
   traités comme des segments **classiques** et obtiennent un **scoring normal**.
 
-#### 5.2.4 Ronds
+#### 5.2.4 Ronds (Tier D — Solitaires Isolés)
 
 - Tout jeton rond **non adjacent à un autre rond** rapporte des points.
 - **Scoring individuel** : chaque joueur marque selon le barème pour **ses propres**
@@ -284,7 +284,7 @@ Le tirage des tuiles en jeu doit être **équilibré** :
   (deux ronds adjacents **ne valent rien**).
 - **Pas de récupération** possible du rond d'un joueur.
 
-#### 5.2.5 Étoiles
+#### 5.2.5 Étoiles (Tier D — Diversité Multiforme)
 
 - Pour chaque **type de jeton distinct adjacent** au jeton étoile, un nombre de points
   est attribué au joueur qui a posé l'étoile, selon le barème :
@@ -303,6 +303,26 @@ Le tirage des tuiles en jeu doit être **équilibré** :
   **concurrente est plus grande** **et** que les règles du tier le permettent (cf. §6).
 - **Exception — jetons « autour »** : les jetons adjacents servant de **support**
   (ex. les voisins d'une étoile) peuvent avoir un **nombre de rôles illimité**.
+  Ex. : un jeton carré adjacent à deux étoiles compte pour les deux.
+
+#### 5.2.7 Spécification Détaillée du Tier A (Initiation & Dynamisme)
+
+Lorsque la partie est paramétrée en **Tier A** (utilisé pour l'apprentissage et en alternance de saisons classées) :
+- **Carré (Trios Compacts)** :
+  - 3 jetons carrés mutuellement adjacents (formant un triangle compact de 3 hexagones) rapportent **9 points**.
+  - Tout carré isolé ou excédentaire ne formant pas un trio parfait vaut 0 pt.
+- **Triangle (Chaînes d'Arêtes Extérieures)** :
+  - Les triangles doivent être disposés le long du bord / périmètre extérieur libre de l'archipel de tuiles.
+  - Barème : 2 triangles (**4 pts**), 3 (**8 pts**), 4 (**13 pts**), 5 (**18 pts**), 6 et plus (**24 pts**).
+- **Cœur (Paires Espacées)** :
+  - Deux cœurs valides doivent être séparés par **exactement 1 tuile d'intervalle** (distance de 2 hexagones).
+  - Chaque paire espacée valide rapporte **6 points**. Si deux cœurs se touchent (distance 1), ils s'invalident mutuellement (0 pt).
+- **Rond (Clans Libres)** :
+  - Groupes de ronds connectés sans contrainte de ligne droite, limités à **5 pions maximum** par clan.
+  - Barème : 3 ronds (**6 pts**), 4 (**11 pts**), 5 (**17 pts**).
+  - Tout rond ajouté au-delà de 5 détruit le clan (vaut 0 pt).
+- **Étoile (Balises Étoilées)** :
+  - Chaque étoile rapporte **3 points par biome différent** présent parmi ses tuiles adjacentes (max 5 biomes = 15 pts).
   Ex. : un jeton carré adjacent à deux étoiles compte pour les deux.
 
 ### 5.3 Jokers
@@ -344,7 +364,7 @@ doit être élevée ; toutes les formes doivent **scaler** avec la taille de la 
 - La partie se termine après le **nombre de tours fixé** (défaut 20).
 - Décompte final :
   - points d'**environnements** (courants + bonus de fin) ;
-  - points de **jetons** (Tier A) ;
+  - points de **jetons** (Tier D de référence officielle, ou Tier A selon le mode/saison) ;
   - points d'**objectifs secrets** (révélés publiquement) :
     - **+valeur de l'objectif** si la condition est remplie ;
     - **-valeur de l'objectif** si l'objectif a été conservé mais n'est pas rempli ;
@@ -389,9 +409,9 @@ doit être élevée ; toutes les formes doivent **scaler** avec la taille de la 
    sans jamais dépenser les jokers du joueur.
 6. **Modularité (DRY)** : le plus grand nombre de mécaniques doit être écrit de façon
    **modulaire**, permettant de les **désactiver sans tout casser** lors de parties
-   personnalisées. Toutes les options du jeu doivent être accessibles. L'ajout des
-   Tiers B/C/D se fait via de nouvelles fonctions enregistrées dans un registre, sans
-   modifier le noyau.
+   personnalisées. Toutes les options du jeu doivent être accessibles. Le noyau intègre
+   un registre de scoring supportant nativement le Tier D officiel et le Tier A, et
+   permettant l'ajout aisé des futurs Tiers B et C.
 7. **Unicité des jetons** : l'algorithme de scoring doit garantir qu'un jeton
    constituant une structure est affecté à **une seule** structure, tandis que les
    jetons de **support** (voisins d'étoile) peuvent être comptés plusieurs fois.
@@ -400,6 +420,7 @@ doit être élevée ; toutes les formes doivent **scaler** avec la taille de la 
    démarre avec des **couleurs** et des **formes** simples.
 9. **Reconnexion par Token de session invité** : Un joueur sans compte n'est pas kické lors d'une déconnexion accidentelle ; un token de reconnexion temporaire valide 3h lui permet de retrouver son siège et son statut.
 10. **Architecture réseau hybride & économie serveur** : Les parties classées tournent sur serveur dédié Node.js/Colyseus pour l'intégrité de l'ELO. Les parties classiques et personnalisées déportent l'autorité sur la machine d'un joueur-hôte (Listen Server via WebRTC DataChannels P2P), réduisant les coûts serveurs de 90%.
+11. **Profils de performance graphique (Normal, Low Performance, Ultra Low Performance)** : Le client web propose 3 modes de rendu graphique. Le mode Low Performance désactive les shaders lourds et les particules d'ambiance. Le mode Ultra Low Performance désactive tous les shaders (rendu 2D plat vectoriel direct), désactive toutes les animations (poses et fractures de pions instantanées en 0 ms), bascule les textures de HD vers SD, et autorise le réglage de la résolution native du canvas avec upscale rapide pour garantir 60 FPS sur toute machine ancienne. Ces réglages sont strictement visuels et exécutés côté client : ils ne modifient en aucun cas les règles, l'état synchronisé du jeu, l'équité compétitive ni l'autorité du serveur.
 
 ---
 

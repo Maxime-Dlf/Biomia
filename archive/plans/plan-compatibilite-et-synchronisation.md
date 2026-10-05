@@ -35,11 +35,13 @@ tout en **garantissant la compatibilité** par des mécanismes structurels.
 
 ```mermaid
 graph TD
-    Client[Client Phaser 3 - Dev B] -->|WebSocket Colyseus| Serveur[Serveur Node.js - Dev A]
-    Client --> Shared[Package shared - types et fonctions pures]
-    Serveur --> Shared
-    Serveur --> Discord[API Discord - OAuth2 et identite]
-    Client --> Discord
+    Client[Client PixiJS v8 - Dev B] --> Choix{Mode de jeu ?}
+    Choix -->|Ranked / ELO| Dedie[Serveur Dédié Colyseus Node.js - Dev A]
+    Choix -->|Casual / Custom| Host[Joueur-Hôte WebRTC P2P - Listen Server]
+    Client --> Shared[Package shared - types, géométrie hex et règles pures]
+    Dedie --> Shared
+    Host --> Shared
+    Client --> Discord[API Discord - OAuth2 et identité]
 ```
 
 ### 2.2 Choix par couche
@@ -48,10 +50,10 @@ graph TD
 |---|---|---|
 | **Langage unique** | **TypeScript** de bout en bout | Un seul écosystème pour les deux devs ; le typage statique rappelle le C pour Dev A et sert de filet de sécurité pour Dev B. |
 | **Partage de code** | **Monorepo** (`pnpm` ou npm workspaces) | Un package `shared` unique contenant les types et les règles pures, utilisé par le serveur **et** le client. C'est le cœur de la compatibilité. |
-| **Serveur / réseau** | **Node.js + Colyseus** | Colyseus fournit les salons, le matchmaking et surtout la **synchronisation d'état par schéma** avec une API TypeScript fortement typée. Il impose un modèle de serveur **autoritaire** (idéal anti-triche). |
-| **Client / rendu** | **Vite + Phaser 3** | Phaser fournit déjà boucle de jeu, caméra, détection de clic, sprites et scènes. **Bien plus accessible qu'un Canvas nu ou PixiJS pour un débutant**, tout en restant performant pour une grille hexagonale. |
+| **Serveur / réseau** | **Architecture Hybride (Colyseus Dédié + WebRTC P2P)** | Serveur dédié Colyseus pour le Classé (anti-triche et ELO certifié). Architecture Joueur-Hôte WebRTC P2P (Listen Server) pour le Casual/Custom pour réduire les coûts serveurs de 90%. Reconnexion invité par token 3h. |
+| **Client / rendu** | **Vite + PixiJS v8** | PixiJS v8 fournit un moteur WebGL/WebGPU ultra-rapide (~400 Ko), idéal pour la composition procédurale des biomes, le shader 2.5D des pions et les masques vectoriels, avec 3 profils de performance (Normal, Low, Ultra Low) garantissant 60 FPS sur tout support. |
 | **Tests** | **Vitest** | Dev A teste les règles et le scoring sans aucune interface graphique. |
-| **UI / menus** | HTML/CSS simple (Dev A) | Les menus, le HUD et les modales restent en HTML/CSS pour capitaliser sur les acquis de Dev A. |
+| **UI / menus** | HTML/CSS simple (Dev A) | Les menus, le HUD, les modales et le choix des profils de performance restent en HTML/CSS pour capitaliser sur les acquis de Dev A. |
 
 ### 2.3 Pourquoi pas les alternatives
 
@@ -60,9 +62,8 @@ graph TD
   définition de la structure de données = source majeure de divergence. → **Rejeté**.
 - **Rust / Go / WebAssembly** : trop difficile pour Dev B et inutile pour un jeu au
   tour par tour. → **Rejeté**.
-- **Canvas natif / PixiJS + Svelte/React** : PixiJS est un moteur de rendu, pas un
-  moteur de jeu ; il exige de réécrire input, caméra et boucle de jeu soi-même.
-  Phaser 3 fait tout cela nativement. → **Phaser retenu**.
+- **Phaser 3** : Proposé initialement pour son accessibilité débutant, Phaser 3 a été écarté car trop lourd (~1.2 Mo) et trop rigide pour la découpe procédurale de textures et le shader 2.5D des jetons. → **Remplacé par PixiJS v8**.
+- **Canvas natif 2D** : Trop lent et chronophage pour les filtres d'éclairage dynamiques et les masques hexagonaux. → **Rejeté au profit de PixiJS v8**.
 
 > **Principe directeur** : le typage TypeScript partagé est le **contrat vivant** entre
 > Dev A et Dev B. Si l'un modifie une structure sans prévenir, la **compilation casse
@@ -94,10 +95,24 @@ en bugs croisés. Le package `shared/` est **la source unique de vérité**.
 Exemple de squelette (à compléter ensemble en Phase 1) :
 
 ```ts
-// 5 environnements (couleurs) et 5 types de jetons (formes) — Tier A
+// 5 environnements (couleurs) et 5 types de jetons (formes) — Tier D officiel & Tier A
 // Noms/DA définitifs à fixer en Phase 1 ; les index restent stables pour la synchro.
 export enum EnvironmentId { E0 = 0, E1 = 1, E2 = 2, E3 = 3, E4 = 4 }
 export enum TokenShape { Carre = 0, Triangle = 1, Coeur = 2, Rond = 3, Etoile = 4 }
+export type TokenTier = 'TierA' | 'TierB' | 'TierC' | 'TierD';
+
+// Profils de performance graphique (options client, zéro altération des règles)
+export type GraphicProfile = 'normal' | 'low' | 'ultra-low';
+
+// Cartes d'objectifs secrets (Style "Aventuriers du Rail")
+export interface SecretObjectiveCard {
+  id: string;
+  tier: 'high' | 'low';
+  value: number;                 // points positifs si rempli, déduits si non rempli (-value)
+  title: string;
+  description: string;
+  isCompleted: boolean;
+}
 
 // Tuile hexagonale : 6 arêtes colorées + capacité d'accueil de jetons
 export interface Tile {
@@ -127,6 +142,7 @@ export interface PlayerState {
   teamId: string | null;
   score: number;
   jokers: number;                // illimités, comptés pour le score de fin
+  objectives: SecretObjectiveCard[]; // cartes d'objectifs secrets (1 forte valeur, 2 faibles)
 }
 
 export interface GameState {
@@ -141,6 +157,7 @@ export interface GameState {
   environmentMinSize: number;    // ceil((totalTiles - 4) / 10)
   rerollAvailable: boolean;      // bouton de reroll (3 jetons identiques)
   winnerId: string | null;
+  activeTier: TokenTier;         // Tier D par défaut, ou Tier A pour initiation
 }
 
 // Union discriminée des coups possibles (squelette à compléter en Phase 1)
@@ -150,7 +167,8 @@ export type Move =
   | { type: 'skipToken' }
   | { type: 'reroll' }
   | { type: 'undo' }
-  | { type: 'confirmTurn' };
+  | { type: 'confirmTurn' }
+  | { type: 'selectObjectives'; keepIds: string[] };
 
 // Réponse serveur -> client
 export interface MoveResult {
@@ -167,11 +185,13 @@ Toutes les règles de validation et de scoring sont des **fonctions pures** :
 ```ts
 export function getConnectedEnvironments(board: GameState['board']): Tile[][];
 export function computeEnvironmentScores(state: GameState): Record<string, number>;
-export function scoreSquares(board: GameState['board']): Record<string, number>;
-export function scoreTriangles(board: GameState['board']): Record<string, number>;
-export function scoreHearts(board: GameState['board']): Record<string, number>;
-export function scoreRounds(board: GameState['board']): Record<string, number>;
-export function scoreStars(board: GameState['board']): Record<string, number>;
+// Fonctions de scoring de jetons (Tier D officiel par défaut, registre extensible vers Tier A)
+export function scoreSquares(board: GameState['board'], tier?: TokenTier): Record<string, number>;
+export function scoreTriangles(board: GameState['board'], tier?: TokenTier): Record<string, number>;
+export function scoreHearts(board: GameState['board'], tier?: TokenTier): Record<string, number>;
+export function scoreRounds(board: GameState['board'], tier?: TokenTier): Record<string, number>;
+export function scoreStars(board: GameState['board'], tier?: TokenTier): Record<string, number>;
+export function scoreObjectives(state: GameState, playerId: string): number;
 export function getValidMoves(state: GameState, playerId: string): Move[];
 export function validateMove(state: GameState, move: Move, playerId: string): boolean;
 export function applyMove(state: GameState, move: Move): GameState;
@@ -184,16 +204,14 @@ export function resolveReroll(state: GameState): GameState | null;
   légaux et le score en direct **avec le même code**.
 - **Conséquence sur la compatibilité** : il est *impossible* que le serveur et le
   client calculent un score différent, puisqu'ils exécutent la même fonction.
-- **Extensibilité des tiers** : chaque forme de jeton du Tier A possède sa propre
-  fonction pure de scoring. Les Tiers B/C/D seront ajoutés via de nouvelles fonctions
-  enregistrées dans un registre, sans modifier le noyau (DRY / modulaire).
+- **Extensibilité des tiers** : le noyau organise le scoring via un registre modulaire (`shared/src/rules/scoring/`) supportant nativement le **Tier D (Expert / Master — référence v1)** et le **Tier A (Initiation & Dynamisme)**. Les Tiers B et C sont ajoutés comme nouvelles fonctions pures sans modifier le noyau.
 
-### 3.4 Protocole d'événements (messages Colyseus)
+### 3.4 Protocole d'événements (messages Colyseus & WebRTC DataChannels)
 
 | Direction | Message | Payload |
 |---|---|---|
 | Client → Serveur | `move` | `{ move: Move, playerId: string }` |
-| Serveur → Client | `state` | `GameState` complet (différentiel géré par Colyseus) |
+| Serveur → Client | `state` | `GameState` complet (différentiel géré par schéma binaire) |
 | Serveur → Client | `moveRejected` | `{ reason: string }` |
 | Serveur → Client | `gameOver` | `{ winnerId: string, scores: Record<string, number> }` |
 | Serveur → Client | `turnStarted` | `{ playerId: string, turnNumber: number }` |
@@ -202,10 +220,15 @@ export function resolveReroll(state: GameState): GameState | null;
 Ajouter un champ `v: number` (version du protocole) au premier message d'échange, pour
 pouvoir casser la compatibilité proprement lors d'évolutions futures.
 
-### 3.5 Conventions d'assets
+### 3.5 Conventions d'assets et pipeline de rendu PixiJS v8
 
-- Nommage des sprites : `environment_0.png` (couleurs), `token_0.png` (formes), etc.
-  (index aligné sur les enums, pas de noms littéraux).
+- **Format des assets de pions** : **1 seule image PNG 2D transparente** par jeton (`token_0.png` à `token_4.png`). Le biseau 2.5D, le relief tactile et le reflet laqué spéculaire sont générés **100% procéduralement par le Shader Universel "Pion de Luxe"** sur le GPU.
+- **Découpage procédural des biomes** : 1 texture par environnement (`environment_0.png` à `4.png`) combinée à des masques vectoriels avec frontière organique (falaise, rivière, lisière).
+- **Entrelacement cyclique borroméen des 3 jetons d'accueil** : sur les tuiles bicolores à 3 symboles, rendu en boucle entrelacée (J1 sur J2, J2 sur J3, J3 sur J1) via clipping stencil d'intersection.
+- **Profils de performance graphique (gérés côté client dans PixiJS v8)** :
+  - *Normal* : Rendu 2.5D complet, shaders solaires dynamiques, particules d'ambiance.
+  - *Low Performance* : Éclairage zénithal statique fixe, shaders lourds désactivés, zéro particule, animations allégées.
+  - *Ultra Low Performance (Grille Éco)* : Shaders 100% désactivés (rendu 2D plat vectoriel direct), animations 100% coupées (poses et fractures instantanées en 0 ms), textures HD -> SD (256/128 px), curseur de résolution native (*Render Scale* 50%/75%/100%) avec upscale matériel pour garantir 60 FPS sur toute machine sans aucun impact sur les règles ni l'équité compétitive.
 - `hexSize` (taille de l'hexagone en pixels) : **déterminé lors du développement** pour
   s'adapter à toutes les tailles et résolutions d'écran (responsive).
 - Point de pivot des sprites : **centre** (0.5, 0.5) partout.
@@ -220,34 +243,29 @@ pouvoir casser la compatibilité proprement lors d'évolutions futures.
 > Rôle : l'**autorité**. Il est propriétaire du package `shared/` et du serveur.
 
 **Montée en compétences préalable**
-- TypeScript de base (types, interfaces, fonctions, `enum`) — très rapide avec un
-  bagage C/Python.
+- TypeScript de base (types, interfaces, fonctions, `enum`) — très rapide avec un bagage C/Python.
 - Node.js, npm/pnpm, gestion d'un monorepo.
-- Colyseus (définition de `Room`, `Schema`, gestion des messages).
+- Colyseus (définition de `Room`, `Schema`, synchronisation d'état).
 - Vitest (tests unitaires).
 - Git : branches, commits, revues de code.
 
 **Tâches concrètes**
 1. Initialiser le monorepo (`shared`, `server`, `client`) avec lint + formatage communs.
-2. Écrire `shared/hex.ts` (géométrie hexagonale).
-3. Écrire `shared/types.ts` (le contrat de données, validé avec Dev B).
-4. Écrire `shared/rules.ts` (validation des coups + scoring).
-5. Implémenter le **scoring** (cf. [`regles-source-de-verite.md`](regles-source-de-verite.md:1)) :
-   - **Environnements** : composantes connexes par couleur d'arête (BFS/DFS), contrôle
-     par agrandissement, bonus de fin (+2/+1 par couleur).
-   - **Jetons Tier A** : une fonction pure par forme (Carré, Triangle, Cœur, Rond,
-     Étoile), via un registre extensible pour les tiers futurs.
-   - **Historique de possession** (`turnPlaced` + `ownerId`) pour ancienneté, vols et
-     sabotages.
-6. Coder le serveur Colyseus :
-   - `GameRoom` : état du jeu, passage des tours, minuteur, phases.
-   - Validation **anti-triche** de chaque coup (`validateMove`) avant toute mutation.
-   - Gestion des **connexions/déconnexions/reconnexions** (un joueur parti ne bloque pas).
-7. Écrire les **tests unitaires** (scoring, hex, règles) à partir des exemples du GDD.
-8. Écrire le **mock d'état** : un `GameState` statique en JSON pour Dev B.
-9. Fournir les **assets de test** (sprites de base) à Dev B.
-10. Intégrer le **backend Discord** : échange du code OAuth2, récupération pseudo/avatar.
-11. Préparer le **déploiement** (HTTPS, variables d'environnement, hébergement).
+2. Écrire `shared/src/core/hex.ts` (géométrie hexagonale).
+3. Écrire `shared/src/core/types.ts` et `state.ts` (contrat de données, objectifs secrets, profils graphiques).
+4. Écrire le moteur de règles modulaire (`shared/src/rules/`) :
+   - Registre de scoring (`registry.ts`) avec support du **Tier D officiel** (`squareScore.ts`, `triangleScore.ts`, `heartScore.ts`, `roundScore.ts`, `starScore.ts`) et du **Tier A** d'initiation.
+   - Scoring des **objectifs secrets** (`scoreObjectives` : +valeur si rempli, -valeur si non rempli).
+   - Composantes connexes d'environnements (`environment.ts`, BFS/DFS, taille minimale, contrôle et bonus de fin +2/+1).
+   - Validation autoritaire des coups (`validateMove`, `applyMove`).
+5. Coder le serveur Colyseus et la logique hybride :
+   - `GameRoom` : état du jeu, passage des tours, minuteur, phases, schéma binaire.
+   - Relais IA des joueurs inactifs / AFK (3 tours à 30s puis 5s, reconnexion invité via token de session 3h).
+   - Export de la boucle de jeu autoritaire pour les parties en joueur-hôte (Listen Server WebRTC P2P en Casual/Custom).
+6. Écrire les **tests unitaires Vitest** (scoring, hex, règles, objectifs) à partir des spécifications.
+7. Écrire le **mock d'état** : un `GameState` statique en JSON pour Dev B.
+8. Intégrer le **backend Discord** : échange du code OAuth2, récupération pseudo/avatar.
+9. Préparer le **déploiement** (HTTPS, variables d'environnement, hébergement).
 
 ### 4.2 Dev B — Frontend, rendu, UI et interactions
 
@@ -256,25 +274,26 @@ pouvoir casser la compatibilité proprement lors d'évolutions futures.
 **Montée en compétences préalable**
 - TypeScript de base (variables, fonctions, objets, boucles).
 - Vite (démarrer le projet de développement).
-- Phaser 3 : scènes, sprites, caméra, gestion des clics.
+- PixiJS v8 : scène (Container), sprites/graphics, caméra (pan/zoom), gestion des clics.
 - Git de base : `commit`, `pull`, `push`, résoudre les conflits simples.
 
 **Tâches concrètes**
-1. Mettre en place la scène Phaser 3 (dimensions, fond, résolution responsive).
+1. Mettre en place l'application PixiJS v8 (`await app.init()`), conteneur de scène réactif, caméra zoom/pan.
 2. **Afficher la grille hexagonale** à partir d'un état mocké (via `hexToPixel`).
-3. Dessiner les **tuiles** (arêtes colorées) et les **jetons** (5 formes) selon leurs
-   sprites.
-4. Afficher la **propriété** de chaque case (couleur/contour par `ownerId`).
-5. Implémenter la **caméra** : zoom à la molette + déplacement (pan) du plateau.
-6. Implémenter la **détection de clic** : `pixelToHex` + surbrillance des cases légales
-   (`getValidMoves`).
+3. Dessiner les **tuiles** (composition procédurale des biomes + masques frontières organiques) et les **jetons** (1 image PNG 2D transparente par forme, traitée par le **Shader Universel Procédural "Pion de Luxe"** avec chanfrein 2.5D et brillance spéculaire).
+4. Implémenter l'**entrelacement cyclique borroméen des 3 jetons d'accueil** sur les tuiles bicolores (clipping stencil).
+5. Afficher la **propriété** de chaque case (liseré extérieur périmétrique sur les biomes contrôlés, ligne joignant les centres passant sous les pions pour les structures de jetons).
+6. Implémenter la **détection de clic** : `pixelToHex` + surbrillance des cases légales (`getValidMoves`).
 7. Gérer le **drag-and-drop** ou le clic-poser pour tuiles et animaux.
-8. Ajouter les **animations** : pose de tuile, pose de jeton, vol, sabotage.
-9. Construire le **HUD** : marché commun (4 tuiles + 4 jetons), jokers, score, joueur
-   courant, minuteur de tour, bouton reroll.
-10. Afficher **identité des joueurs** (avatar + pseudo).
-11. Intégrer le **SDK Discord** côté front (`@discord/embedded-app-sdk`).
-12. Rendre le tout **responsive** (PC + mobile, formats portrait et paysage).
+8. Ajouter les **animations hiérarchisées** : pose douce avec rebond, slam 360° et vague de saut (*wave jump*) sur vol, fracture visuelle persistante en 2 moitiés des jetons sabotés.
+9. Construire le **HUD et les menus** : marché commun (4 tuiles + 4 jetons), jokers, score, joueur courant, minuteur de tour, bouton reroll, et **cartes d'objectifs secrets** (style Aventuriers du Rail).
+10. Intégrer les **3 Profils de Performance Graphique** (`PerformanceManager`) :
+    - *Normal* : 2.5D complet, shaders solaires, reflets Blinn-Phong, animations et particules.
+    - *Low Performance* : shaders solaires et lourds désactivés, éclairage zénithal fixe, particules coupées, animations allégées.
+    - *Ultra Low Performance (Grille Éco)* : shaders 100% désactivés (rendu 2D plat direct), animations 100% coupées (poses instantanées), résolution textures SD, curseur Render Scale (50%/75%/100%) avec upscale matériel pour assurer 60 FPS sans modifier les règles.
+11. Afficher l'**identité des joueurs** (avatar + pseudo Riot `#XXX`).
+12. Intégrer le **SDK Discord** côté front (`@discord/embedded-app-sdk`).
+13. Rendre le tout **responsive** (PC + mobile, formats portrait et paysage).
 
 ### 4.3 Frontière entre les deux
 
@@ -312,7 +331,7 @@ graph LR
   - mise en place (tuile de départ en triangle, nombre de tours, total de tuiles) ;
   - déroulement du tour (marché 4 tuiles + 4 jetons, reroll, pose tuile, choix/pose
     jeton, bonus joker, retour, confirmation, minuteur) ;
-  - scoring (environnements, jetons Tier A, jokers) et propriété/ancienneté ;
+  - scoring (environnements, jetons Tier D officiel et Tier A d'initiation, objectifs secrets, jokers) et propriété/ancienneté ;
   - mode équipes et règles techniques anti-boucle du reroll.
 - **Exemples de score à la main** : non produits en Phase 0 (une seule partie Tier D
   jouée, calculs manuels coûteux et sujets aux erreurs). Remplacés par des **tests
@@ -413,7 +432,7 @@ graph LR
 - **Pair programming** sur les points durs (détection de clic hex, caméra, animations).
 - Dev A fournit des **fonctions à signature simple** et documentées, pour que Dev B
   n'ait qu'à les appeler.
-- Retour visuel immédiat privilégié (Phaser) pour maintenir la motivation.
+- Retour visuel immédiat privilégié (PixiJS v8) pour maintenir la motivation.
 
 ---
 
@@ -422,7 +441,7 @@ graph LR
 ### Étape A — Phase d'apprentissage (les deux devs, en parallèle)
 
 1. **Dev A** : TypeScript → Node.js → Colyseus → Vitest → Git (détail §4.1).
-2. **Dev B** : TypeScript → Vite → Phaser 3 → Git (détail §4.2).
+2. **Dev B** : TypeScript → Vite → PixiJS v8 → Git (détail §4.2).
    - Les deux devs n'ayant jamais touché ces outils, cette étape précède tout code du projet.
    - Procédure d'installation (Windows + VSCode), liens officiels, ordre de codage et
      tests : voir [`installation-apprentissage-tests.md`](installation-apprentissage-tests.md:1).
@@ -446,7 +465,7 @@ graph LR
 - **Dérive de scope** : commencer par un plateau fixe, sans Discord, sans monétisation.
   Ajouter le reste une fois le noyau stable.
 - **Surcharge de Dev B** : ne pas lui demander de toucher au serveur ni aux règles ; le
-  cantonner à Phaser + TypeScript de base.
+  cantonner à PixiJS v8 + TypeScript de base.
 - **Divergence de règles** : toute règle modifiée doit passer par `shared/rules.ts` et
   par un test unitaire, jamais par une bidouille locale.
 - **Responsive Discord** : prévoir dès le départ le rendu en portrait **et** paysage,
@@ -464,9 +483,8 @@ Les choix structurants retenus dans ce document (à confirmer) :
 
 1. **TypeScript end-to-end** plutôt qu'un backend Python, au prix d'une montée en
    compétence de Dev A — pour garantir le partage de types.
-2. **Phaser 3** plutôt que PixiJS/Svelte, pour l'accessibilité pour Dev B.
-3. **Colyseus** plutôt que Socket.io brut, pour la synchronisation d'état typée.
-4. **Package `shared/`** comme source unique de vérité (types + règles pures).
+2. **PixiJS v8 & Profils de Performance** plutôt que Phaser 3 (abandonné) ou Canvas nu : moteur WebGPU/WebGL léger (~400 Ko), shader universel procédural "Pion de Luxe" 2.5D, et 3 profils graphiques intégrés (Normal, Low Performance, Ultra Low Performance) garantissant 60 FPS sur toute configuration sans altérer les règles ni l'équité de jeu.
+3. **Architecture Réseau Hybride** : serveur dédié Colyseus pour le Mode Classé (intégrité ELO), et architecture Joueur-Hôte Listen Server WebRTC P2P pour les parties Amicales/Custom (économie de 90% des coûts serveurs).
+4. **Package `shared/`** comme source unique de vérité (types, géométrie hex, objectifs secrets et règles pures).
 5. **Six phases de synchronisation** obligatoires, du game design au déploiement.
-6. **Règles verrouillées** pour le Tier A : voir [`regles-source-de-verite.md`](regles-source-de-verite.md:1)
-   (v1.2), avec les points ouverts restants à trancher (§10).
+6. **Règles normatives verrouillées** pour le Tier D de référence et le Tier A d'initiation : voir [`regles-source-de-verite.md`](regles-source-de-verite.md:1) (v1.3), avec les points ouverts restants à trancher (§10).

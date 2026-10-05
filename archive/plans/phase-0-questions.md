@@ -10,13 +10,13 @@ La référence normative des règles est
 
 | # | Question | Décision |
 |---|---|---|
-| R1 | Périmètre | **Tier A uniquement** pour la v1 |
+| R1 | Périmètre des règles | Spécification normative du **Tier D (Expert / Master)** comme set officiel de référence v1, avec support architectural complet du **Tier A (Initiation)** |
 | R2 | 5ᵉ type de jeton | **Étoile** (barème progressif validé) |
 | R3 | Ronds : majoritaire ou individuel | **Individuel** |
 | R4 | Contrôle d'un environnement | Par la pose d'une **tuile** qui l'étend |
 | R5 | Reroll | Relance des **jetons identiques** (3 manuel, 4 auto) + règles anti-boucle |
 | R6 | Regarnissage du marché | Par emplacement (tuile choisie + jeton choisi remplacés) |
-| R7 | Nombre de joueurs | **8 recommandés** (plus possible, moins confortable) |
+| R7 | Nombre de joueurs | **8 recommandés** (plus possible, jusqu'à 16 supportés, IA configurables) |
 | R8 | Bouton retour | **Rembourse tout sauf les rerolls** |
 | R9 | Ordre de jeu | **Ordre des sièges** ou **aléatoire**, via une option |
 | R10 | Composition de la pool | Ajouter les jetons des types acceptés par chaque tuile |
@@ -32,6 +32,9 @@ La référence normative des règles est
 | R20 | Modularité | Mécaniques **désactivables** sans tout casser, options accessibles |
 | R21 | Équilibrage des jetons | Étoile progressive, Triangle prolongé (**validé**) |
 | R22 | Unicité des jetons | 1 jeton = 1 chaîne/montage ; support (voisins d'étoile) illimité ; briser exige plus grand + tier le permet |
+| R23 | Moteur de rendu client | **PixiJS v8** retenu (~400 Ko, WebGL/WebGPU) ; Phaser 3 abandonné |
+| R24 | Profils de performance | **Normal**, **Low Performance** (sans shaders solaires ni particules) et **Ultra Low Performance** (2D plat sans shaders, sans animations, SD, Render Scale avec upscale natif) garantissant 60 FPS sans modifier les règles |
+| R25 | Objectifs secrets | 3 cartes au départ (1 forte, 2 faibles), repioche conditionnelle si tous réussis, sanction négative (`-valeur`) si non remplis |
 
 ---
 

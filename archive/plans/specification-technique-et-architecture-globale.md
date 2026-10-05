@@ -13,8 +13,8 @@
 2. [Modes de Jeu & Options Joueurs](#2-modes-de-jeu--options-joueurs)
 3. [Gestion des Tiers, Matchmaking & Système de Saisons](#3-gestion-des-tiers-matchmaking--système-de-saisons)
 4. [Personnalisation Avancée, Injection ZIP & Paliers de Comptes](#4-personnalisation-avancée-injection-zip--paliers-de-comptes)
-5. [Architecture Client-Serveur Dédié (Node.js + Colyseus)](#5-architecture-client-serveur-dédié-nodejs--colyseus)
-6. [Moteur Graphique 2.5D, Volumétrie, Éclairage, Animations & Shaders Solaires](#6-moteur-graphique-25d-volumétrie-éclairage-animations--shaders-solaires)
+5. [Architecture Réseau Hybride & Optimisation des Coûts Serveur](#5-architecture-réseau-hybride--optimisation-des-coûts-serveur)
+6. [Moteur Graphique 2.5D, Shader "Pion de Luxe", Shaders Solaires & Profils de Performance](#6-moteur-graphique-25d-volumétrie-éclairage-animations--shaders-solaires)
 7. [Génération Procédurale des Tuiles & Découpage Visuel](#7-génération-procédurale-des-tuiles--découpage-visuel)
 8. [Architecture Modulaire Long-Terme & Organisation Scalable du Code](#8-architecture-modulaire-long-terme--organisation-scalable-du-code)
 9. [Stratégie de Monétisation Respectueuse](#9-stratégie-de-monétisation-respectueuse)
@@ -101,7 +101,13 @@ Le laboratoire créatif du jeu. Conçu pour laisser les joueurs totalement libre
   - **Glissement direct à la souris (Drag & Drop)** pour un réglage rapide et intuitif.
   - **Touches Flèche Gauche ($\leftarrow$) et Flèche Droite ($\rightarrow$)** : Ajustement ultra-précis **unité par unité**.
   - **Combinaison `Maj + Flèches` (`Shift + $\leftarrow$ / $\rightarrow$`)** : Incréments rapides par pas de 5 ou 10.
-* **Options Visuelles & Règles Modulaires :**
+* **Options Visuelles, Profils de Performance & Règles Modulaires :**
+  - **Profils de Performance Graphique (Accessibilité Matérielle)** :
+    - *Normal (Haute Fidélité)* : Rendu 2.5D complet, shaders solaires, biseau et laque procédurale Blinn-Phong, animations complètes et particules.
+    - *Low Performance (Basse Performance)* : Shaders lourds et cycle solaire désactivés, particules supprimées, éclairage fixe, animations allégées.
+    - *Ultra Low Performance (Mode Grille Éco)* : Shaders 100% désactivés (rendu 2D plat pur), animations 100% coupées (poses instantanées), résolution HD -> SD, empreinte mémoire minimale, zéro altération des règles ni de la lisibilité.
+  - **Curseur de Résolution Native & Upscale (*Render Scale*)** :
+    - Curseur de 50% à 100% de la résolution native du canvas (50%, 75%, 100%) avec upscale rapide pour soulager le GPU sur écrans 4K/Retina.
   - **Visibilité et surbrillance des montages (Règle d'affichage clé)** :
     - *Par défaut* : Chaque joueur ou équipe **ne voit que ses propres montages** surlignés dans sa propre couleur. Tout le reste du plateau est sobre pour une lisibilité parfaite.
     - *Option personnalisée "Montages & Scores Complets"* : Surbrillance des montages de **tous les joueurs** et affichage des scores détaillés en temps réel.
@@ -430,21 +436,21 @@ Pour toutes les parties amicales, personnalisées, privées ou avec bots (qui re
 - Validation de l'**Approche B** : composition dynamique des tuiles hexagonales à l'aide d'une texture de base par biome et de masques de découpage vectoriels avec bordure de frontière esthétique (rivière, falaise, lisière).
 - Avantages confirmés : poids d'assets minimal, compatibilité totale et immédiate avec les mods ZIP (ajouter un biome ne requiert qu'une seule image).
 
-### 5.3 Moteur de Rendu : Comparatif & Choix Recommandé
+### 5.4 Moteur de Rendu : Choix Ferme de PixiJS v8
 
-La doc proposait Phaser 3. Examinons les alternatives modernes :
+Phaser 3 a été initialement envisagé pour sa prise en main rapide, mais a été formellement écarté au profit de **PixiJS v8** pour des raisons architecturales et de performance :
 
 | Solution | Volume / 2.5D / Éclairage | Poids bundle | Facilité Modding & Découpage procédural | Note Globale |
 |---|---|---|---|---|
-| **Phaser 3** | Moyen (2D classique, shaders WebGL possibles mais rigides) | ~1.2 Mo | Moyen (textures atlas précompilées) | 7/10 |
-| **PixiJS v8** | Élevé (moteur WebGL/WebGPU ultra-rapide, filtres d'éclairage et masques vectoriels dynamiques natifs) | ~400 Ko | Excellent (composition de textures en temps réel) | **9.5/10 (Recommandé)** |
+| **Phaser 3 (Écarté)** | Moyen (2D classique, shaders WebGL possibles mais rigides) | ~1.2 Mo | Moyen (textures atlas précompilées) | 7/10 |
+| **PixiJS v8 (Retenu)** | Élevé (moteur WebGL/WebGPU ultra-rapide, filtres d'éclairage et masques vectoriels dynamiques natifs) | ~400 Ko | Excellent (composition de textures en temps réel) | **9.5/10 (Choix Ferme)** |
 | **Three.js (Isométrique)** | Parfait pour la 3D pure (mesh biseautés, ombres portées réelles) | ~600 Ko | Très bon pour les pions 3D, plus complexe pour l'UI | 8.5/10 |
 | **Canvas 2D natif + Shaders** | Léger, mais oblige à recoder caméra, zoom, gestion des scènes | ~20 Ko | Bon mais chronophage | 6/10 |
 
-**Recommandation d'optimisation** : Utiliser un rendu **Canvas/WebGL 2.5D accéléré** (avec PixiJS v8 ou Three.js isométrique léger) qui excelle dans :
-- La découpe et superposition de masques vectoriels pour les biomes.
-- Les filtres d'éclairage dynamique, ombres douces et reflets.
-- Une compatibilité mobile et desktop sans aucune saccade (60 FPS constants).
+**Justification du choix PixiJS v8** :
+- Poids plume (~400 Ko vs 1.2 Mo pour Phaser), chargement instantané dans les Discord Activities.
+- Architecture WebGL/WebGPU moderne avec gestion fluide des masques de découpage vectoriels et du stencil buffer pour l'entrelacement borroméen des 3 jetons.
+- Pipeline d'extensibilité parfait pour basculer dynamiquement en mode **Low Performance** ou **Ultra Low Performance** sans réécrire le code de rendu.
 
 ---
 
@@ -454,7 +460,7 @@ Le jeu **ne doit pas être plat**. Voici la conception technique du rendu en vol
 
 ### 6.1 Volumétrie des Tuiles Hexagonales
 - **Effet Chanfrein (Bevel 2.5D)** : Chaque tuile possède une épaisseur apparente avec des tranches biseautées projetant une ombre propre selon la source lumineuse.
-- **Relief de surface** : Normal maps légères ou dégradés d'ombrage calculés qui donnent à chaque biome une texture tangible (granuleux pour le désert, ondulations pour l'eau, relief boisé pour la forêt).
+- **Relief de surface & Matière** : Dégradés d'ombrage calculés et filtres procéduraux légers (Sobel) qui donnent à chaque biome et pion une texture tangible sans nécessiter de cartes de normales (Normal Maps) multi-fichiers.
 - **Ombre portée dynamique (Drop Shadow)** : Chaque tuile projette une ombre douce sur la table de jeu ou les tuiles inférieures, accentuée lors de la prise en main (lévitation).
 
 ```
@@ -580,6 +586,98 @@ Le shader 2.5D calcule la direction de la lumière principale (`u_sunDirection`)
 
 - **Transitions fluides** : L'interpolation des vecteurs de lumière et des couleurs d'ambiance se fait par fonction cosinus douce (`smoothstep`), sans aucun saut visuel brutal.
 
+### 6.8 Profils de Performance Graphique (Normal, Low Performance & Ultra Low Performance)
+
+Pour garantir une expérience irréprochable sur tous les terminaux — depuis les stations de jeu équipées de GPU dédiés jusqu'aux vieux ordinateurs portables bureautiques, Chromebooks d'école ou smartphones d'entrée de gamme —, le moteur graphique PixiJS v8 intègre nativement **3 profils de performance prédéfinis** commutables à tout instant dans les options :
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        PROFILS DE PERFORMANCE GRAPHIQUE                                │
+├──────────────────────┬────────────────────────┬────────────────────────────────────────┤
+│ Profil               │ Cible Matérielle       │ Compromis Visuel / Rendu               │
+├──────────────────────┼────────────────────────┼────────────────────────────────────────┤
+│ 1. Normal (Défaut)   │ PC moderne, GPU dédié, │ • Rendu 2.5D complet, shaders solaires │
+│    (Haute Fidélité)  │ iPhone / Android récent│ • Biseau & reflet laqué Blinn-Phong    │
+│                      │                        │ • Animations complètes & particules    │
+├──────────────────────┼────────────────────────┼────────────────────────────────────────┤
+│ 2. Low Performance   │ PC portable batterie,  │ • Éclairage zénithal statique fixe     │
+│    (Basse Perf)      │ GPU intégré Intel/AMD, │ • Shaders solaires et lourds désactivés│
+│                      │ Smartphone milieu gamme│ • Zéro particule, animations allégées  │
+├──────────────────────┼────────────────────────┼────────────────────────────────────────┤
+│ 3. Ultra Low Perf    │ Vieux Chromebooks,     │ • SHADERS 100% DÉSACTIVÉS (2D plat pur)│
+│    (Mode Grille Éco) │ PC > 10 ans sans GPU,  │ • ANIMATIONS 100% DÉSACTIVÉES (Inst.)  │
+│                      │ Navigateur saturé      │ • Résolution HD -> SD, Upscale natif   │
+│                      │                        │ • ZÉRO ALTÉRATION DU GAMEPLAY          │
+└──────────────────────┴────────────────────────┴────────────────────────────────────────┘
+```
+
+#### 1. Principe Directeur Intangible : Équité Compétitive & Zéro Dégradation du Gameplay
+> [!IMPORTANT]
+> **Le choix du profil graphique n'altère sous aucun prétexte les règles, la synchronisation réseau ni la lisibilité du jeu** :
+> - Les 6 couleurs d'arêtes, les contours extérieurs de biomes, la détection des coups légaux (`getValidMoves`), l'entrelacement borroméen des symboles d'accueil, le minuteur, le HUD et les cartes d'objectifs restent **100% identiques et immédiatement compréhensibles**.
+> - En mode classé ou compétitif, un joueur en mode Ultra Low Performance n'a **aucun désavantage ni avantage de timing** : les coups sont instantanés localement et l'autorité serveur reste synchrone.
+
+#### 2. Détail Technique du Mode « Low Performance »
+Conçu pour préserver l'autonomie sur batterie et éviter la chauffe sur GPU intégré :
+- **Désactivation des shaders dynamiques lourds** :
+  - Fin du calcul trigonométrique en boucle de la course solaire (`u_sunDirection`) : bascule sur une lumière zénithale neutre fixe (midi solaire pré-calculé à 5500K).
+  - Désactivation des filtres de distorsion et de mirage thermique estival.
+- **Suppression intégrale des systèmes de particules** :
+  - Désactivation des conteneurs de particules saisonnières (zéro pétale, zéro flocon, zéro étincelle, zéro feuille morte) et de la poussière d'impact lors de la pose des tuiles.
+- **Simplification du Shader "Pion de Luxe"** :
+  - Le shader de pion bascule en passe unique : biseau rapide sans calcul Blinn-Phong multi-sources, ombre portée simplifiée à un disque vectoriel monochrome pré-rendu.
+- **Allègement des animations à fort impact** :
+  - La vague de propagation (*wave jump*) est réduite à un éclaircissement périodique léger sans déformation géométrique sinusoïdale des tuiles.
+  - La rotation aérienne 360° lors des poses à fort impact est abrégée ou remplacée par une montée/chute directe.
+
+#### 3. Détail Technique du Mode « Ultra Low Performance » (Mode Grille Éco)
+Conçu pour faire tourner CrasseCadia à **60 FPS constants sur n'importe quelle configuration**, même un processeur dual-core d'il y a 12 ans sans carte graphique :
+- **Shaders 100% Désactivés (Rendu 2D Vectoriel Plat Pur)** :
+  - Aucun shader WebGL/WebGPU personnalisé n'est injecté.
+  - Le rendu PixiJS s'effectue exclusivement via le pipeline 2D standard : aplats de couleurs vectoriels francs, contours nets et sprites PNG 2D directs.
+  - Disparition complète de l'épaisseur 2.5D, du chanfrein Sobel, des ombres portées douces et des reflets laqués : le plateau prend l'aspect élégant et ultra-lisible d'un jeu de stratégie abstrait sur plan numérique.
+- **Animations 100% Désactivées (Instantanéité Absolue)** :
+  - **Pose instantanée** : Clic -> pose immédiate en 0 ms (zéro animation de lévitation, zéro rebond élastique, zéro onde de choc).
+  - **Fracture immédiate des structures brisées** : Dès la validation du sabotage par le serveur, les jetons brisés sont affichés instantanément coupés en 2 sans animation de craquelure.
+  - **Transfert instantané de propriété** : Le liseré de biome change de couleur instantanément sans vague d'onde de choc.
+- **Bascule de Résolution HD $\rightarrow$ SD (Standard Definition)** :
+  - Les textures de biomes sont sous-échantillonnées au chargement à **256 × 256 px** (au lieu de 512 × 512 px) et les jetons à **128 × 128 px** (au lieu de 256 × 256 px).
+  - L'empreinte mémoire VRAM est **divisée par 4**, éliminant tout risque de crash par manque de mémoire sur les périphériques mobiles ou onglets contraints.
+- **Choix de la Résolution Native & Upscale (*Render Scale*)** :
+  - Le moteur propose un curseur permettant de réduire la définition interne du canvas PixiJS à **50% ou 75%** de la résolution d'écran physique, avec mise à l'échelle matérielle immédiate via upscaling bilinéaire rapide ou `image-rendering: pixelated`.
+  - Divise par 2 à 4 le nombre de pixels à calculer par le GPU (gain massif sur dalles 1080p/1440p/4K), tout en conservant le HUD et les textes HTML nets par-dessus le canvas.
+- **Audio Éco** :
+  - Désactivation des synthèses procédurales temps réel au profit de courts sons WAV/WebM légers pré-décodés.
+
+#### 4. Architecture d'Implémentation (`PerformanceManager`)
+Dans l'architecture client PixiJS v8 (`client/src/engine/performanceManager.ts`), le gestionnaire applique ces profils de manière centralisée :
+```ts
+export type PerformanceProfile = 'normal' | 'low' | 'ultra-low';
+
+export interface GraphicSettings {
+  profile: PerformanceProfile;
+  renderScale: number; // 0.5, 0.75, 1.0
+  enableShaders: boolean;
+  enableAnimations: boolean;
+  enableParticles: boolean;
+  textureQuality: 'hd' | 'sd';
+}
+
+export class PerformanceManager {
+  public static applyProfile(app: Application, settings: GraphicSettings): void {
+    // 1. Ajustement de l'échelle de rendu et du Canvas PixiJS
+    app.renderer.resolution = window.devicePixelRatio * settings.renderScale;
+    
+    // 2. Activation / Désactivation des Shaders et Tickers
+    if (settings.profile === 'ultra-low') {
+      app.ticker.maxFPS = 60;
+      // Bascule sur le pipeline 2D standard sans shaders personnalisés
+    }
+  }
+}
+```
+Les préférences graphiques sont persistées dans le `localStorage` de l'utilisateur pour être restaurées automatiquement à chaque session, y compris pour les joueurs invités sans compte.
+
 ---
 
 ## 7. Génération Procédurale des Tuiles & Découpage Visuel
@@ -690,12 +788,13 @@ CrasseCadia/
 │   │   └── index.ts
 │   └── package.json
 │
-└── client/                       # CLIENT WEB HAUTE PERFORMANCE (Vite + WebGL)
+└── client/                       # CLIENT WEB HAUTE PERFORMANCE (Vite + PixiJS v8)
     ├── src/
-    │   ├── engine/               # Rendu graphique 2.5D
-    │   │   ├── renderer.ts       # Initialisation Canvas/WebGL & boucle de rendu
+    │   ├── engine/               # Rendu graphique 2.5D & 2D
+    │   │   ├── renderer.ts       # Initialisation Canvas/WebGL & boucle de rendu PixiJS
+    │   │   ├── performanceManager.ts # Gestion des profils Normal, Low & Ultra Low Perf
     │   │   ├── camera.ts         # Contrôleur zoom / pan avec inertie
-    │   │   └── hexMesh.ts        # Génération dynamique des tuiles biseautées & ombres
+    │   │   └── hexMesh.ts        # Génération dynamique des tuiles biseautées, masques & ombres
     │   ├── themes/               # SYSTÈME DE SKINS & THÈMES TOTALEMENT DÉCOUPLÉ
     │   │   ├── themeManager.ts   # Gestionnaire de thèmes actifs
     │   │   ├── definitions/      # Packs de skins configurables
@@ -858,12 +957,15 @@ Toutes les spécifications techniques, sécuritaires et de game design sont dés
    - Tuiles bicolores Cascadia : **3 arêtes consécutives par biome** séparées par une **courbe frontière esthétique organique** (falaise, berge, lisière), avec symboles d'accueil répartis de part et d'autre.
    - Tuiles à 3 jetons : **Disposition en triangle équilatéral centré** avec **superposition cyclique entrelacée** (J1 sur J2, J2 sur J3, J3 sur J1, style nœud borroméen) rendue sans artefact via clipping stencil d'intersection.
    - Lisibilité des structures : Liseré coloré entourant les biomes, et lignes de liaison reliant les centres des tuiles **en passant sous les pions 2.5D**.
-4. **Moteur Graphique 2.5D, Shader Universel "Pion de Luxe" & Shaders Solaires** :
+4. **Moteur Graphique 2.5D, Shader Universel "Pion de Luxe", Shaders Solaires & Profils de Performance (Low / Ultra Low)** :
    - **Shader Universel Procédural pour jetons retenu** : 1 seule image PNG 2D transparente requise pour les moddeurs et artistes. Finition bois/acrylique laqué de luxe, chanfrein arrondi et reflets spéculaires générés 100% procéduralement par le GPU à 60 FPS constants.
    - **PBR multi-cartes complexe et POM lourd formellement écartés** pour éliminer toute barrière au modding et éviter les chutes de framerate.
    - Poses à fort impact (rotation 360°, onde de choc, vague de saut des tuiles) et jetons fracturés persistants.
    - Shaders solaires dynamiques synchronisés sur l'heure locale **sans géolocalisation**.
    - Shaders et particules saisonniers pour le mode classé.
+   - **Profils de Performance Intégrés (Accessibilité Universelle & Zéro Altération du Gameplay)** :
+     - *Mode Low Performance* : Shaders dynamiques solaires et filtres lourds désactivés, particules supprimées, éclairage fixe, animations allégées.
+     - *Mode Ultra Low Performance (Grille Éco)* : Shaders 100% coupés (rendu 2D plat vectoriel), animations 100% désactivées (poses et fractures instantanées en 0 ms), textures HD -> SD, curseur d'échelle de rendu native (*Render Scale* 50%/75%/100%) avec upscale rapide pour garantir 60 FPS sur toute machine sans aucun impact sur les règles ni l'équité.
 5. **Communication & Chat intégré** :
    - Chat d'équipe accessible via la touche `Entrée` (`Enter`).
    - Chat général accessible via le raccourci `Maj + Entrée` (`Shift + Enter`).
