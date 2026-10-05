@@ -50,7 +50,8 @@ test('partie en ligne complète entre 4 navigateurs, avec un F5 en cours de part
   await expect(host.getByText(/Joueurs \(4 \/ 4\)|Players \(4 \/ 4\)/)).toBeVisible();
   await host.screenshot({ path: 'e2e/.results/online-1-lobby.png' });
   await host.getByRole('button', { name: /Lancer la partie|Start game/ }).click();
-  for (const page of pages) await expect(page.locator('canvas')).toBeVisible();
+  // Quatre contextes WebGL démarrent ensemble : lent sans GPU (CI).
+  for (const page of pages) await expect(page.locator('canvas')).toBeVisible({ timeout: 30_000 });
 
   let reloaded = false;
   for (let guard = 0; guard < 2000; guard++) {
