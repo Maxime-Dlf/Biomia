@@ -1,0 +1,19 @@
+{
+  "name": "@crassecadia/engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Moteur de règles pur et déterministe de CrasseCadia (§15.1, §15.4)",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "fast-check": "^4.10.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}
