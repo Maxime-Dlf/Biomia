@@ -3,6 +3,9 @@
 # `-f docker-compose.direct.yml`.
 #
 #   cd deploy && docker compose up -d --build
+# Nom de projet fixe : pas de collision avec d'autres projets Docker de la machine.
+name: biomia
+
 services:
   server:
     build:

@@ -17,6 +17,9 @@ echo "== Paquets de base"
 apt-get update
 apt-get install -y ca-certificates curl git openssh-server ufw
 
+if command -v docker >/dev/null && docker compose version >/dev/null 2>&1; then
+  echo "== Docker déjà installé : conservé tel quel"
+else
 echo "== Docker Engine (dépôt officiel, base Ubuntu de Mint)"
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
@@ -26,6 +29,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
   >/etc/apt/sources.list.d/docker.list
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+fi
 systemctl enable --now docker
 usermod -aG docker "$OWNER"
 
@@ -37,6 +41,7 @@ echo "== Jamais de mise en veille (serveur)"
 systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 
 echo "== Pare-feu : rien d'entrant, sauf SSH depuis le réseau local et le réseau Tailscale"
+echo "   (les règles existantes sont conservées)"
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow from 192.168.0.0/16 to any port 22 proto tcp
@@ -60,5 +65,5 @@ fi
 echo
 echo "Terminé. Étapes suivantes (deploy/MINT.md) :"
 echo "  1. se déconnecter puis se reconnecter (groupe docker) ;"
-echo "  2. sudo tailscale up --hostname=crassecadia   (ouvrir le lien affiché) ;"
+echo "  2. sudo tailscale up --hostname=biomia   (ouvrir le lien affiché) ;"
 echo "  3. sudo tailscale funnel --bg 8080            (accepter l'activation de Funnel)."

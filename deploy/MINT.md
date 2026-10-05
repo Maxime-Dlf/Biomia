@@ -109,7 +109,7 @@ Revenez sur le terminal de votre PC Mint :
 
 1. Téléchargez le projet (remplacez `<votre-compte>` et `<votre-depot>` par vos vrais identifiants GitHub) :
    ```sh
-   git clone git@github.com:<votre-compte>/<votre-depot>.git ~/crassecadia
+   git clone git@github.com:<votre-compte>/<votre-depot>.git ~/biomia
    ```
    > 💡 **Première connexion à GitHub ?** Le terminal affichera un message d'avertissement :
    > `Are you sure you want to continue connecting (yes/no/[fingerprint])?`
@@ -117,7 +117,7 @@ Revenez sur le terminal de votre PC Mint :
 
 2. Entrez dans le dossier du projet et lancez le script de configuration :
    ```sh
-   cd ~/crassecadia
+   cd ~/biomia
    sudo bash deploy/bootstrap-mint.sh
    ```
    *(Si vous souhaitez autoriser une clé SSH pour administrer le PC à distance depuis votre autre machine,
@@ -166,7 +166,7 @@ reste toujours la même.
 ### Étape 2.2 — Connecter votre PC Mint à Tailscale
 1. Sur le PC Mint, ouvrez un terminal (`Ctrl + Alt + T`) et tapez :
    ```sh
-   sudo tailscale up --hostname=crassecadia
+   sudo tailscale up --hostname=biomia
    ```
 2. Le terminal affiche un lien web commençant par `https://login.tailscale.com/a/...`.
 3. Maintenez la touche **Ctrl** enfoncée et cliquez sur le lien (ou faites un clic droit dessus → *Ouvrir le lien*,
@@ -197,10 +197,10 @@ reste toujours la même.
    tailscale funnel status
    ```
 6. Le terminal vous affiche votre adresse publique sécurisée. Elle ressemble à ceci :
-   `https://crassecadia.tail12345.ts.net`
+   `https://biomia.tail12345.ts.net`
 
 > 📌 **NOTEZ PRÉCIEUSEMENT CETTE ADRESSE !**
-> La partie située après `https://` (par exemple `crassecadia.tail12345.ts.net`) est votre **DOMAIN**.
+> La partie située après `https://` (par exemple `biomia.tail12345.ts.net`) est votre **DOMAIN**.
 > Vous en aurez besoin dans les étapes suivantes.
 
 ---
@@ -212,7 +212,7 @@ Le dossier `deploy` contient un fichier modèle `.env.example`. Nous allons le d
 votre propre fichier secret `.env` :
 
 ```sh
-cd ~/crassecadia/deploy
+cd ~/biomia/deploy
 cp .env.example .env
 chmod 600 .env
 ```
@@ -228,7 +228,7 @@ puis Entrée, et pour quitter : faites `Ctrl + X`).*
 
 Remplissez les premières valeurs :
 1. Sur la ligne `DOMAIN=`, collez votre nom de domaine Tailscale sans `https://`
-   (exemple : `DOMAIN=crassecadia.tail12345.ts.net`).
+   (exemple : `DOMAIN=biomia.tail12345.ts.net`).
 2. Pour l'instant, laissez `DISCORD_CLIENT_ID` et `DISCORD_CLIENT_SECRET` vides (nous les remplirons à
    l'étape 4 pour l'intégration Discord).
 3. Enregistrez le fichier (`Fichier → Enregistrer` ou `Ctrl + S`) et fermez l'éditeur.
@@ -236,7 +236,7 @@ Remplissez les premières valeurs :
 ### Étape 3.3 — Démarrer le jeu avec Docker
 Dans le terminal, lancez la construction et le démarrage du serveur :
 ```sh
-cd ~/crassecadia/deploy
+cd ~/biomia/deploy
 docker compose up -d --build
 ```
 > ⏳ *La première fois, cette opération prend entre 1 et 3 minutes car Docker télécharge les images
@@ -278,7 +278,7 @@ Pour pouvoir jouer au jeu directement à l'intérieur d'un salon vocal Discord (
    - *(Dans cette même page, sous la section Redirects, cliquez sur Add Redirect et ajoutez `https://127.0.0.1`
      puis enregistrez les modifications).*
 6. **Inscrire ces identifiants dans votre PC Mint** :
-   - Ouvrez votre fichier `.env` sur le PC Mint (`xed ~/crassecadia/deploy/.env &`) ;
+   - Ouvrez votre fichier `.env` sur le PC Mint (`xed ~/biomia/deploy/.env &`) ;
    - Remplissez les deux lignes avec les valeurs obtenues :
      ```env
      DISCORD_CLIENT_ID=123456789012345678
@@ -294,9 +294,9 @@ Pour pouvoir jouer au jeu directement à l'intérieur d'un salon vocal Discord (
 
      | Préfixe | Cible (Mapping) |
      |---|---|
-     | `/` | `crassecadia.<votre-tailnet>.ts.net` |
-     | `/ws` | `crassecadia.<votre-tailnet>.ts.net/ws` |
-     | `/api` | `crassecadia.<votre-tailnet>.ts.net/api` |
+     | `/` | `biomia.<votre-tailnet>.ts.net` |
+     | `/ws` | `biomia.<votre-tailnet>.ts.net/ws` |
+     | `/api` | `biomia.<votre-tailnet>.ts.net/api` |
 
    - Cliquez sur **Save Changes** en bas.
 9. **Installer l'activité sur votre serveur Discord de test** :
@@ -306,12 +306,12 @@ Pour pouvoir jouer au jeu directement à l'intérieur d'un salon vocal Discord (
 10. **Reconstruire le jeu pour prendre en compte les identifiants** :
     Sur le PC Mint, exécutez simplement :
     ```sh
-    ~/crassecadia/deploy/update.sh
+    ~/biomia/deploy/update.sh
     ```
 11. **Lancer une partie dans Discord !**
     - Rejoignez un salon vocal sur votre serveur Discord de test ;
     - Cliquez sur l'icône de fusée (**Démarrer une activité**) en bas à gauche ;
-    - Sélectionnez votre jeu « CrasseCadia (dev) » : le plateau apparaît directement dans Discord !
+    - Sélectionnez votre jeu « Biomia (dev) » : le plateau apparaît directement dans Discord !
 
 > ℹ️ *Tant que l'application n'est pas vérifiée publiquement par Discord, seuls les membres de votre équipe
 > ou les personnes déclarées dans l'onglet Roles/Testeurs du portail développeur peuvent lancer l'activité.*
@@ -325,7 +325,7 @@ Une fois le serveur en place, voici tout ce que vous devez savoir pour l'exploit
 ### Mettre à jour le jeu après une modification sur GitHub
 Quand vous avez poussé de nouvelles modifications sur le dépôt GitHub :
 ```sh
-~/crassecadia/deploy/update.sh
+~/biomia/deploy/update.sh
 ```
 Ce script récupère automatiquement le code le plus récent (`git pull`), reconstruit les conteneurs et
 vérifie que le serveur est bien reparti.
@@ -333,7 +333,7 @@ vérifie que le serveur est bien reparti.
 ### Vérifier l'état du serveur
 Pour savoir si les conteneurs tournent correctement :
 ```sh
-cd ~/crassecadia/deploy
+cd ~/biomia/deploy
 docker compose ps
 ```
 Vous devez voir `caddy` et `server` avec l'état `running` (vert).
@@ -341,7 +341,7 @@ Vous devez voir `caddy` et `server` avec l'état `running` (vert).
 ### Consulter les journaux (logs) en cas de problème
 Si vous voulez voir ce qui se passe sur le serveur de jeu en direct :
 ```sh
-cd ~/crassecadia/deploy
+cd ~/biomia/deploy
 docker compose logs -f server
 ```
 *(Appuyez sur `Ctrl + C` quand vous souhaitez quitter l'affichage des logs).*
@@ -349,11 +349,11 @@ docker compose logs -f server
 ### Arrêter et redémarrer le serveur
 - Pour **arrêter** le serveur :
   ```sh
-  cd ~/crassecadia/deploy && docker compose down
+  cd ~/biomia/deploy && docker compose down
   ```
 - Pour **relancer** le serveur :
   ```sh
-  cd ~/crassecadia/deploy && docker compose up -d
+  cd ~/biomia/deploy && docker compose up -d
   ```
 
 ### Que se passe-t-il en cas de coupure de courant ou de redémarrage du PC ?
@@ -372,7 +372,7 @@ un VPS :
 2. Dans le fichier `.env` sur le serveur : modifiez la ligne `DOMAIN=monjeunature.com`.
 3. Lancez la commande en mode direct :
    ```sh
-   cd ~/crassecadia/deploy && ./update.sh direct
+   cd ~/biomia/deploy && ./update.sh direct
    ```
    *(Le serveur web Caddy générera automatiquement un certificat HTTPS gratuit Let's Encrypt).*
 4. Dans le portail développeur Discord, remplacez les cibles des URL Mappings par votre nouveau domaine.
@@ -401,11 +401,11 @@ la console de votre Bbox doit être strictement identique à celle retournée pa
 4. Dans `deploy/.env` : renseignez `DOMAIN=votre-sous-domaine.duckdns.org` et `DUCKDNS_TOKEN=votre_jeton`.
 5. Activez la mise à jour automatique de l'IP toutes les 5 minutes dans votre crontab (`crontab -e`) :
    ```cron
-   */5 * * * * ~/crassecadia/deploy/duckdns-update.sh
+   */5 * * * * ~/biomia/deploy/duckdns-update.sh
    ```
 6. Démarrez en mode direct :
    ```sh
-   cd ~/crassecadia/deploy && ./update.sh direct
+   cd ~/biomia/deploy && ./update.sh direct
    ```
 
 *Attention : cette méthode expose l'adresse IP de votre domicile sur Internet.*
