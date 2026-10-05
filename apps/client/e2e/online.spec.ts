@@ -1,11 +1,13 @@
 import { type Browser, devices, expect, type Page, test } from '@playwright/test';
+import { CI_STORAGE } from './ci.ts';
 import { playStep, uiState } from './play.ts';
 
 /** Crée une page dans un contexte isolé (sessionStorage propre), bureau ou mobile. */
 async function newPlayer(browser: Browser, mobile: boolean): Promise<Page> {
-  const context = await browser.newContext(
-    mobile ? { ...devices['Pixel 7'] } : { viewport: { width: 1280, height: 800 } },
-  );
+  const context = await browser.newContext({
+    ...(mobile ? devices['Pixel 7'] : { viewport: { width: 1280, height: 800 } }),
+    storageState: CI_STORAGE,
+  });
   return context.newPage();
 }
 
@@ -58,7 +60,7 @@ test('partie en ligne complète entre 4 navigateurs, avec un F5 en cours de part
     if (!reloaded && states[1]!.phase === 'playing' && !states[1]!.canAct) {
       const seat = states[1]!.seat;
       await pages[1]!.reload();
-      await expect(pages[1]!.locator('canvas')).toBeVisible();
+      await expect(pages[1]!.locator('canvas')).toBeVisible({ timeout: 20_000 });
       await expect.poll(async () => (await uiState(pages[1]!)).seat).toBe(seat);
       await pages[1]!.screenshot({ path: 'e2e/.results/online-2-after-reload.png' });
       reloaded = true;

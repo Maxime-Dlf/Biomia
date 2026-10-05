@@ -2021,7 +2021,7 @@ attendant les assets de l'artiste (§14.7) :
 | T48 | `SoundEngine` (§14.5) | Sons de synthèse Web Audio en attendant ceux de l'artiste ; démarrage après la première interaction ; volume des paramètres globaux |
 | T49 | Thèmes (§14.6) | Paquet de données : palette, rendu des jetons, paramètres du shader, particules. Deux thèmes intégrés : défaut (Okabe-Ito) et contraste élevé ; choix local, dans les paramètres |
 | T50 | Accessibilité (§13.6) | Curseur clavier sur les cellules légales (flèches, Entrée) avec aperçu du gain ; le chat réduit ne masque pas le plateau |
-| T51 | Non-régression visuelle | Scènes de développement `?scene=board` et `?scene=large` (heure et profil imposés, sans particules) ; captures du plateau seul (HUD masqué), tolérance 1 %, références dans `apps/client/e2e/__screenshots__`. Générées sous Windows : en CI, la comparaison et le seuil de FPS sont désactivés jusqu'à des références Linux |
+| T51 | Non-régression visuelle | Scènes de développement `?scene=board` et `?scene=large` (heure et profil imposés, sans particules) ; captures du plateau seul (HUD masqué), tolérance 1 %, références dans `apps/client/e2e/__screenshots__`. Générées sous Windows : en CI, la comparaison et le seuil de FPS sont désactivés jusqu'à des références Linux, et les tests fonctionnels tournent en Ultra Low (pas de GPU sur les machines de CI) |
 
 Restent en attente des livrables de l'artiste : pipeline AssetPack (atlas, variantes HD/SD, formats
 compressés), textures de biomes, masques de frontière, jetons et sons définitifs.

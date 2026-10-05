@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { CI_STORAGE } from './e2e/ci.ts';
 
 const SERVER_PORT = 2599;
 
@@ -13,6 +14,7 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:5199',
     viewport: { width: 1400, height: 860 },
+    storageState: CI_STORAGE,
   },
   projects: [
     {

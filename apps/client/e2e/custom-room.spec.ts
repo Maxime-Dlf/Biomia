@@ -1,8 +1,12 @@
 import { type Browser, expect, type Page, test } from '@playwright/test';
+import { CI_STORAGE } from './ci.ts';
 import { playStep, uiState } from './play.ts';
 
 async function newPage(browser: Browser): Promise<Page> {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 860 },
+    storageState: CI_STORAGE,
+  });
   return context.newPage();
 }
 
