@@ -1,0 +1,31 @@
+{
+  "name": "@crassecadia/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Serveur autoritaire Colyseus (§15.5)",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@colyseus/core": "^0.17.52",
+    "@colyseus/schema": "^4.0.31",
+    "@colyseus/ws-transport": "^0.17.13",
+    "@crassecadia/content": "workspace:*",
+    "@crassecadia/engine": "workspace:*",
+    "@crassecadia/protocol": "workspace:*",
+    "express": "^5.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@colyseus/sdk": "^0.17.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}
