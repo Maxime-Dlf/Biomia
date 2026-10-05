@@ -61,7 +61,13 @@ test('partie en ligne complète entre 4 navigateurs, avec un F5 en cours de part
     if (!reloaded && states[1]!.phase === 'playing' && !states[1]!.canAct) {
       const seat = states[1]!.seat;
       await pages[1]!.reload();
-      await expect(pages[1]!.locator('canvas')).toBeVisible({ timeout: 20_000 });
+      await expect(pages[1]!.locator('canvas'))
+        .toBeVisible({ timeout: 20_000 })
+        .catch(async (e: unknown) => {
+          // Diagnostic : écran affiché à la place du plateau après le rechargement.
+          console.log(`Après F5 : ${await pages[1]!.locator('body').innerText()}`);
+          throw e;
+        });
       await expect.poll(async () => (await uiState(pages[1]!)).seat).toBe(seat);
       await pages[1]!.screenshot({ path: 'e2e/.results/online-2-after-reload.png' });
       reloaded = true;

@@ -33,3 +33,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @crassecadia/client exec playwright install --with-deps chromium
       - run: pnpm e2e
+      - name: Résultats Playwright (captures, contextes d'erreur)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: apps/client/e2e/.results
+          retention-days: 7
