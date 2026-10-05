@@ -25,6 +25,15 @@ export default defineConfig({
   ],
   webServer: [
     {
+      // Build de production servi avec la CSP du site : e2e/csp.spec.ts.
+      command:
+        'pnpm vite build --outDir .csp-dist --emptyOutDir && pnpm vite preview --outDir .csp-dist --port 5198 --strictPort',
+      url: 'http://localhost:5198',
+      reuseExistingServer: true,
+      timeout: 180_000,
+      env: { VITE_SERVER_URL: `ws://localhost:${SERVER_PORT}` },
+    },
+    {
       command: 'pnpm vite --port 5199 --strictPort',
       url: 'http://localhost:5199',
       reuseExistingServer: true,

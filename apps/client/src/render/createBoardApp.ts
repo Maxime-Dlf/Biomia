@@ -1,4 +1,7 @@
 import { Application } from 'pixi.js';
+// La CSP du site et du proxy Discord interdit `eval` (§16.2) : PixiJS doit générer ses shaders
+// sans `new Function`.
+import 'pixi.js/unsafe-eval';
 import { BOARD_BACKGROUND } from './palette.ts';
 
 /**

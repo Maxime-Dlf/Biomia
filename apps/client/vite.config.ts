@@ -30,4 +30,12 @@ export default defineConfig({
   base: './',
   plugins: [svelte(), inviteLinks()],
   server: { port: 5173 },
+  // Même CSP que le site en production (deploy/Caddyfile) : vérifiée par les tests de bout en bout
+  // sur le build (e2e/csp.spec.ts).
+  preview: {
+    headers: {
+      'Content-Security-Policy':
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws://localhost:2599; frame-ancestors 'self'",
+    },
+  },
 });

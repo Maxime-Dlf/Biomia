@@ -11,3 +11,4 @@ Thumbs.db
 !.env.example
 **/e2e/.results/
 playwright-report/
+.csp-dist/

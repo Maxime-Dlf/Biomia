@@ -24,6 +24,9 @@ test('partie en ligne complète entre 4 navigateurs, avec un F5 en cours de part
   const errors: string[] = [];
   pages.forEach((p, i) => {
     p.on('pageerror', (e) => errors.push(`J${i + 1}: ${e.message}`));
+    p.on('console', (m) => {
+      if (m.type() === 'error') errors.push(`J${i + 1} (console) : ${m.text()}`);
+    });
   });
 
   // L'hôte crée le salon puis le configure : 4 sièges humains (défaut), 2 manches.
@@ -66,6 +69,7 @@ test('partie en ligne complète entre 4 navigateurs, avec un F5 en cours de part
         .catch(async (e: unknown) => {
           // Diagnostic : écran affiché à la place du plateau après le rechargement.
           console.log(`Après F5 : ${await pages[1]!.locator('body').innerText()}`);
+          console.log(`Erreurs : ${JSON.stringify(errors)}`);
           throw e;
         });
       await expect.poll(async () => (await uiState(pages[1]!)).seat).toBe(seat);
