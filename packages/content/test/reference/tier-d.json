@@ -1,0 +1,359 @@
+[
+  {
+    "id": "D-square-001",
+    "rule": "§9.1.1",
+    "description": "Un carré seul : composante de 1, en attente, 0 point.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["square", 0, 0, "A", 1]],
+    "expected": { "A": { "tokens": { "square": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-square-002",
+    "rule": "§9.1.1",
+    "description": "Paire A puis B : propriétaire = poseur du plus récent (B), 1 paire → 5.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["square", 0, 0, "A", 1], ["square", 1, 0, "B", 2]],
+    "expected": {
+      "A": { "tokens": { "square": 0 }, "total": 0 },
+      "B": { "tokens": { "square": 5 }, "total": 5 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-square-003",
+    "rule": "§9.1.1",
+    "description": "Deux paires isolées de A : barème par nombre, 2 paires → 11.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["square", 4, 0, "A", 3],
+      ["square", 5, 0, "A", 4]
+    ],
+    "expected": { "A": { "tokens": { "square": 11 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-square-004",
+    "rule": "§9.1.1",
+    "description": "Trois carrés en ligne : composante de 3 → tous invalidés.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["square", 0, 0, "A", 1], ["square", 1, 0, "A", 2], ["square", 2, 0, "A", 3]],
+    "expected": { "A": { "tokens": { "square": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-square-005",
+    "rule": "§9.1.1",
+    "description": "Un carré posé à côté d'une paire l'invalide (composante de 3 en triangle).",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["square", 0, 0, "A", 1], ["square", 1, 0, "A", 2], ["square", 1, -1, "B", 3]],
+    "expected": { "A": { "tokens": { "square": 0 } }, "B": { "tokens": { "square": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-square-006",
+    "rule": "§9.1.1",
+    "description": "5 paires de A : 27 pour 4 paires, puis +9 → 36.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["square", 3, 0, "A", 3],
+      ["square", 4, 0, "A", 4],
+      ["square", 6, 0, "A", 5],
+      ["square", 7, 0, "A", 6],
+      ["square", 9, 0, "A", 7],
+      ["square", 10, 0, "A", 8],
+      ["square", 12, 0, "A", 9],
+      ["square", 13, 0, "A", 10]
+    ],
+    "expected": { "A": { "tokens": { "square": 36 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-square-007",
+    "rule": "§9.1.1",
+    "description": "Chaque camp lit le barème sur ses propres paires : A 2 paires → 11, B 1 paire → 5 (+ un carré seul en attente).",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["square", 3, 0, "A", 3],
+      ["square", 4, 0, "A", 4],
+      ["square", 6, 0, "B", 5],
+      ["square", 7, 0, "B", 6],
+      ["square", 10, 0, "B", 7]
+    ],
+    "expected": { "A": { "tokens": { "square": 11 } }, "B": { "tokens": { "square": 5 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-triangle-001",
+    "rule": "§9.1.2",
+    "description": "Un triangle seul : chaîne de longueur 1 → 2.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["triangle", 0, 0, "A", 1]],
+    "expected": { "A": { "tokens": { "triangle": 2 }, "total": 2 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-triangle-002",
+    "rule": "§9.1.2",
+    "description": "Ligne de 2 de A prolongée par B : B en prend le contrôle, ligne de 3 → 9.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["triangle", 0, 0, "A", 1], ["triangle", 1, 0, "A", 2], ["triangle", 2, 0, "B", 3]],
+    "expected": { "A": { "tokens": { "triangle": 0 } }, "B": { "tokens": { "triangle": 9 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-triangle-003",
+    "rule": "§9.1.2",
+    "description": "En T : la ligne de 4 (axe E-O) est prise d'abord ; la branche (1,2)-(1,1) devient une chaîne secondaire de 2 → 13 + 5.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["triangle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "A", 2],
+      ["triangle", 2, 0, "A", 3],
+      ["triangle", 3, 0, "A", 4],
+      ["triangle", 1, 1, "A", 5],
+      ["triangle", 1, 2, "A", 6]
+    ],
+    "expected": { "A": { "tokens": { "triangle": 18 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-triangle-004",
+    "rule": "§9.1.2, §9.0",
+    "description": "Deux lignes de 3 qui se croisent en (0,0) : à longueur égale, la plus ancienne (E-O, seq max 3) l'emporte ; l'autre est découpée en deux chaînes de 1.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["triangle", -1, 0, "A", 1],
+      ["triangle", 0, 0, "A", 2],
+      ["triangle", 1, 0, "A", 3],
+      ["triangle", 0, 1, "A", 4],
+      ["triangle", 0, -1, "B", 5]
+    ],
+    "expected": { "A": { "tokens": { "triangle": 11 } }, "B": { "tokens": { "triangle": 2 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-triangle-005",
+    "rule": "§9.1.2",
+    "description": "Ligne de 8 : 7 et plus → 25.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["triangle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "A", 2],
+      ["triangle", 2, 0, "A", 3],
+      ["triangle", 3, 0, "A", 4],
+      ["triangle", 4, 0, "A", 5],
+      ["triangle", 5, 0, "A", 6],
+      ["triangle", 6, 0, "A", 7],
+      ["triangle", 7, 0, "A", 8]
+    ],
+    "expected": { "A": { "tokens": { "triangle": 25 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-heart-001",
+    "rule": "§9.1.3",
+    "description": "Segment de 3 cœurs en ligne, sans triangle → 7.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["heart", 0, 0, "A", 1], ["heart", 1, 0, "A", 2], ["heart", 2, 0, "A", 3]],
+    "expected": { "A": { "tokens": { "heart": 7 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-heart-002",
+    "rule": "§9.1.3",
+    "description": "Triangle de 3 cœurs mutuellement adjacents → tous invalidés.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["heart", 0, 0, "A", 1], ["heart", 1, 0, "A", 2], ["heart", 1, -1, "A", 3]],
+    "expected": { "A": { "tokens": { "heart": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-heart-003",
+    "rule": "§9.1.3",
+    "description": "Losange de 4 cœurs : deux triangles se chevauchent → 4 invalidés.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 1, 0, "A", 2],
+      ["heart", 1, -1, "B", 3],
+      ["heart", 0, 1, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "heart": 0 } }, "B": { "tokens": { "heart": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-heart-004",
+    "rule": "§9.1.3",
+    "description": "Triangle invalidé + queue (-1,0)-(-2,0) : la queue forme un segment de 2 → 4, au poseur du cœur le plus récent (A, seq 5).",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 1, 0, "A", 2],
+      ["heart", 1, -1, "B", 3],
+      ["heart", -1, 0, "B", 4],
+      ["heart", -2, 0, "A", 5]
+    ],
+    "expected": { "A": { "tokens": { "heart": 4 } }, "B": { "tokens": { "heart": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-heart-005",
+    "rule": "§9.1.3",
+    "description": "Boucle de 6 cœurs autour d'une cellule vide : cycle sans triangle permis → 20.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["heart", 1, 0, "A", 1],
+      ["heart", 1, -1, "A", 2],
+      ["heart", 0, -1, "A", 3],
+      ["heart", -1, 0, "A", 4],
+      ["heart", -1, 1, "A", 5],
+      ["heart", 0, 1, "A", 6]
+    ],
+    "expected": { "A": { "tokens": { "heart": 20 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-heart-006",
+    "rule": "§9.1.3",
+    "description": "Deux segments séparés, scorés séparément : 3 → 7 et 1 → 2.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 1, 0, "A", 2],
+      ["heart", 2, 0, "A", 3],
+      ["heart", 5, 0, "A", 4]
+    ],
+    "expected": { "A": { "tokens": { "heart": 9 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-circle-001",
+    "rule": "§9.1.4",
+    "description": "3 ronds isolés : barème par nombre → 8.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["circle", 0, 0, "A", 1], ["circle", 2, 0, "A", 2], ["circle", 4, 0, "A", 3]],
+    "expected": { "A": { "tokens": { "circle": 8 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-circle-002",
+    "rule": "§9.1.4",
+    "description": "Deux ronds adjacents : tous deux invalidés ; un rond isolé de B → 2.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["circle", 0, 0, "A", 1], ["circle", 1, 0, "A", 2], ["circle", 4, 0, "B", 3]],
+    "expected": { "A": { "tokens": { "circle": 0 } }, "B": { "tokens": { "circle": 2 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-circle-003",
+    "rule": "§9.1.4",
+    "description": "9 ronds isolés : 8 et plus → 26.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["circle", 0, 0, "A", 1],
+      ["circle", 2, 0, "A", 2],
+      ["circle", 4, 0, "A", 3],
+      ["circle", 6, 0, "A", 4],
+      ["circle", 8, 0, "A", 5],
+      ["circle", 10, 0, "A", 6],
+      ["circle", 12, 0, "A", 7],
+      ["circle", 14, 0, "A", 8],
+      ["circle", 16, 0, "A", 9]
+    ],
+    "expected": { "A": { "tokens": { "circle": 26 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-circle-004",
+    "rule": "§9.1.4",
+    "description": "Un rond ne peut pas être récupéré : rond isolé de A à côté d'un jeton de B → reste à A.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["circle", 0, 0, "A", 1], ["square", 1, 0, "B", 2]],
+    "expected": { "A": { "tokens": { "circle": 2 } }, "B": { "tokens": { "circle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-star-001",
+    "rule": "§9.1.5",
+    "description": "Étoile entourée de 3 formes distinctes : d = 3 → 3 × 6 / 2 = 9.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["star", 0, 0, "A", 1],
+      ["square", 1, 0, "B", 2],
+      ["triangle", -1, 0, "B", 3],
+      ["heart", 0, 1, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "star": 9 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-star-002",
+    "rule": "§9.1.5",
+    "description": "Deux étoiles voisines : chacune compte l'autre ; les deux carrés ne comptent qu'une fois. d = 2 → 5 chacune.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["star", 0, 0, "A", 1],
+      ["square", 1, 0, "B", 2],
+      ["square", -1, 0, "B", 3],
+      ["star", 0, 1, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "star": 5 } }, "B": { "tokens": { "star": 5, "square": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-star-003",
+    "rule": "§9.1.5",
+    "description": "Les jetons invalidés comptent : 2 ronds adjacents (invalidés) + 1 cœur → d = 2 → 5.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [
+      ["star", 0, 0, "A", 1],
+      ["circle", 1, 0, "B", 2],
+      ["circle", 1, -1, "B", 3],
+      ["heart", -1, 0, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "star": 5 } }, "B": { "tokens": { "circle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "D-star-004",
+    "rule": "§9.1.5",
+    "description": "Étoile sans voisin : d = 0 → 0.",
+    "config": { "camps": ["A", "B"] },
+    "tokens": [["star", 0, 0, "A", 1]],
+    "expected": { "A": { "tokens": { "star": 0 }, "total": 0 } },
+    "validatedBy": null,
+    "validatedAt": null
+  }
+]

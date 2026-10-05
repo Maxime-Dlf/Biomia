@@ -1,0 +1,78 @@
+[
+  {
+    "id": "opt-steals-001",
+    "rule": "§7.5 vols désactivés",
+    "description": "Ligne de triangles créée par A puis prolongée par B : le propriétaire reste celui de la création (A) → 9.",
+    "config": { "camps": ["A", "B"], "options": { "steals": false } },
+    "tokens": [["triangle", 0, 0, "A", 1], ["triangle", 1, 0, "A", 2], ["triangle", 2, 0, "B", 3]],
+    "expected": { "A": { "tokens": { "triangle": 9 } }, "B": { "tokens": { "triangle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "opt-steals-002",
+    "rule": "§7.5 vols désactivés",
+    "description": "Environnement de A agrandi par une tuile de B : il reste à A.",
+    "config": { "camps": ["A", "B"], "threshold": 2, "options": { "steals": false } },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "B", "seq": 3 }
+    ],
+    "expected": { "A": { "environments": 3 }, "B": { "environments": 0 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "opt-steals-003",
+    "rule": "§7.5 vols désactivés",
+    "description": "Fusion : A relie son environnement de 2 à celui de B (3) → la partie la plus grande l'emporte, l'ensemble (6) reste à B.",
+    "config": { "camps": ["A", "B"], "threshold": 2, "options": { "steals": false } },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": 3, "r": 0, "mono": "E0", "placedBy": "B", "seq": 3 },
+      { "q": 4, "r": 0, "mono": "E0", "placedBy": "B", "seq": 4 },
+      { "q": 5, "r": 0, "mono": "E0", "placedBy": "B", "seq": 5 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "A", "seq": 6 }
+    ],
+    "expected": { "A": { "environments": 0 }, "B": { "environments": 6 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "opt-sabotage-001",
+    "rule": "§7.5 sabotage désactivé",
+    "description": "Le carré de B qui invaliderait la paire de A est neutre : la paire reste valide (5), le carré de B vaut 0.",
+    "config": { "camps": ["A", "B"], "options": { "sabotage": false } },
+    "tokens": [["square", 0, 0, "A", 1], ["square", 1, 0, "A", 2], ["square", 2, 0, "B", 3]],
+    "expected": { "A": { "tokens": { "square": 5 } }, "B": { "tokens": { "square": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "opt-sabotage-002",
+    "rule": "§7.5 sabotage désactivé",
+    "description": "Le rond de B qui invaliderait le rond isolé de A est neutre : A garde 2.",
+    "config": { "camps": ["A", "B"], "options": { "sabotage": false } },
+    "tokens": [["circle", 0, 0, "A", 1], ["circle", 1, 0, "B", 2]],
+    "expected": { "A": { "tokens": { "circle": 2 } }, "B": { "tokens": { "circle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "opt-sabotage-003",
+    "rule": "§7.5 sabotage désactivé",
+    "description": "Un jeton qui n'invalide rien reste normal : ligne de 2 triangles de B → 5.",
+    "config": { "camps": ["A", "B"], "options": { "sabotage": false } },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["triangle", 2, 0, "B", 3],
+      ["triangle", 3, 0, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "square": 5 } }, "B": { "tokens": { "triangle": 5 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  }
+]

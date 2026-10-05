@@ -1,0 +1,292 @@
+[
+  {
+    "id": "C-square-001",
+    "rule": "§9.4.1",
+    "description": "Mur de 3 → 6 ; ligne de 2 → neutre.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "C" } },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["square", 2, 0, "A", 3],
+      ["square", 0, 3, "B", 4],
+      ["square", 1, 3, "B", 5]
+    ],
+    "expected": {
+      "A": { "tokens": { "square": 6 }, "effects": 0 },
+      "B": { "tokens": { "square": 0 } }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-square-002",
+    "rule": "§9.4.1",
+    "description": "Mur de A sur 3 tuiles d'un environnement valide de B (taille 3, S = 3) → neutralisé, +5 à A. L'environnement garde ses points courants.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "C" }, "threshold": 3 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "B", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "B", "seq": 2 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "B", "seq": 3 }
+    ],
+    "tokens": [["square", 0, 0, "A", 4], ["square", 1, 0, "A", 5], ["square", 2, 0, "A", 6]],
+    "expected": {
+      "A": { "tokens": { "square": 6 }, "effects": 5, "total": 11 },
+      "B": { "environments": 3, "total": 3 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-square-003",
+    "rule": "§9.4.1, §8.4",
+    "description": "Même plateau en fin de partie : l'environnement neutralisé est exclu des bonus de fin (pas de +2 pour B).",
+    "config": {
+      "camps": ["A", "B"],
+      "tierByShape": { "square": "C" },
+      "threshold": 3,
+      "final": true
+    },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "B", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "B", "seq": 2 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "B", "seq": 3 }
+    ],
+    "tokens": [["square", 0, 0, "A", 4], ["square", 1, 0, "A", 5], ["square", 2, 0, "A", 6]],
+    "expected": {
+      "A": { "total": 11, "endBonuses": 0 },
+      "B": { "environments": 3, "endBonuses": 0, "total": 3 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-square-004",
+    "rule": "§9.4.1",
+    "description": "Mur sur son propre environnement : pas de neutralisation (autre camp requis).",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "C" }, "threshold": 3 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "A", "seq": 3 }
+    ],
+    "tokens": [["square", 0, 0, "A", 4], ["square", 1, 0, "A", 5], ["square", 2, 0, "A", 6]],
+    "expected": { "A": { "tokens": { "square": 6 }, "effects": 0, "environments": 3, "total": 9 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-triangle-001",
+    "rule": "§9.4.2",
+    "description": "Flèche de 3 → 4 ; ligne de 2 → neutre.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "C" } },
+    "tokens": [
+      ["triangle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "A", 2],
+      ["triangle", 2, 0, "A", 3],
+      ["triangle", 0, 3, "B", 4],
+      ["triangle", 1, 3, "B", 5]
+    ],
+    "expected": { "A": { "tokens": { "triangle": 4 } }, "B": { "tokens": { "triangle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-triangle-002",
+    "rule": "§9.4.2",
+    "description": "Siphon : la cellule après l'extrémité (3,0) porte un rond isolé de B (Tier D, 2 points) → transfert de min(4, 2) = 2 à A.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "C", "circle": "D" } },
+    "tokens": [
+      ["triangle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "A", 2],
+      ["triangle", 2, 0, "A", 3],
+      ["circle", 3, 0, "B", 4]
+    ],
+    "expected": {
+      "A": { "tokens": { "triangle": 4 }, "effects": 2, "total": 6 },
+      "B": { "tokens": { "circle": 0 }, "total": 0 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-triangle-003",
+    "rule": "§9.4.2",
+    "description": "Une structure du même camp n'est pas siphonnée ; l'autre extrémité siphonne le cœur de B (chaîne de 1 → 2).",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "C", "heart": "C" } },
+    "tokens": [
+      ["triangle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "A", 2],
+      ["triangle", 2, 0, "A", 3],
+      ["heart", 3, 0, "A", 4],
+      ["heart", -1, 0, "B", 5]
+    ],
+    "expected": {
+      "A": { "tokens": { "triangle": 4, "heart": 2 }, "effects": 2 },
+      "B": { "tokens": { "heart": 0 } }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-heart-001",
+    "rule": "§9.4.3",
+    "description": "Chaîne de 3 (A, A, B) : propriétaire A (majorité), 7 points ; B parasite 2 points pour son cœur.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "C" } },
+    "tokens": [["heart", 0, 0, "A", 1], ["heart", 1, 0, "A", 2], ["heart", 2, 0, "B", 3]],
+    "expected": {
+      "A": { "tokens": { "heart": 5 }, "effects": 0 },
+      "B": { "tokens": { "heart": 0 }, "effects": 2 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-heart-002",
+    "rule": "§9.4.3",
+    "description": "Égalité 2-2 : le camp dont le cœur le plus récent est le plus ancien (A, seq 3) possède la chaîne de 4 (12) ; B parasite 4.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "C" } },
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 1, 0, "B", 2],
+      ["heart", 2, 0, "A", 3],
+      ["heart", 3, 0, "B", 4]
+    ],
+    "expected": {
+      "A": { "tokens": { "heart": 8 } },
+      "B": { "tokens": { "heart": 0 }, "effects": 4 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-heart-003",
+    "rule": "§9.4.3",
+    "description": "Cycle de 6 et triangles permis en Tier C : chaîne de 7 → 25 pour A seul.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "C" } },
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 1, 0, "A", 2],
+      ["heart", 1, -1, "A", 3],
+      ["heart", 0, -1, "A", 4],
+      ["heart", -1, 0, "A", 5],
+      ["heart", -1, 1, "A", 6],
+      ["heart", 0, 1, "A", 7]
+    ],
+    "expected": { "A": { "tokens": { "heart": 25 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-circle-001",
+    "rule": "§9.4.4",
+    "description": "Rond actif de A : bloque le carré voisin de B (sa paire avec (2,0) disparaît), pas le carré de A. 4 points.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "C", "square": "D" } },
+    "tokens": [
+      ["circle", 0, 0, "A", 1],
+      ["square", 1, 0, "B", 2],
+      ["square", 2, 0, "B", 3],
+      ["square", -1, 0, "A", 4]
+    ],
+    "expected": {
+      "A": { "tokens": { "circle": 4, "square": 0 } },
+      "B": { "tokens": { "square": 0 } }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-circle-002",
+    "rule": "§9.4.4",
+    "description": "Deux ronds adjacents sont désamorcés : 0 point et sans effet ; la paire de carrés de B reste valide (5).",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "C", "square": "D" } },
+    "tokens": [
+      ["circle", 0, 0, "A", 1],
+      ["circle", 1, 0, "A", 2],
+      ["square", 0, 1, "B", 3],
+      ["square", -1, 1, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "circle": 0 } }, "B": { "tokens": { "square": 5 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-circle-003",
+    "rule": "§9.4.4",
+    "description": "4 jetons bloqués : 4 × 4 = 16, plafonné à 12.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "C", "triangle": "D" } },
+    "tokens": [
+      ["circle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "B", 2],
+      ["triangle", 1, -1, "B", 3],
+      ["triangle", 0, -1, "B", 4],
+      ["triangle", -1, 0, "B", 5]
+    ],
+    "expected": { "A": { "tokens": { "circle": 12 } }, "B": { "tokens": { "triangle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-star-001",
+    "rule": "§9.4.5",
+    "description": "Trou noir : 3 ronds de B voisins → absorbés (ignorés par le scoring) ; 15 points.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "star": "C", "circle": "D" } },
+    "tokens": [
+      ["star", 0, 0, "A", 1],
+      ["circle", 1, 0, "B", 2],
+      ["circle", 0, -1, "B", 3],
+      ["circle", -1, 1, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "star": 15 } }, "B": { "tokens": { "circle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-star-002",
+    "rule": "§9.4.5",
+    "description": "Seulement 2 ronds de B : pas d'absorption → étoile 2 ; les ronds isolés (Tier D) → 5.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "star": "C", "circle": "D" } },
+    "tokens": [["star", 0, 0, "A", 1], ["circle", 1, 0, "B", 2], ["circle", 0, -1, "B", 3]],
+    "expected": { "A": { "tokens": { "star": 2 } }, "B": { "tokens": { "circle": 5 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-star-003",
+    "rule": "§9.4.5",
+    "description": "Deux formes absorbées (3 ronds, 3 cœurs de B) → 15 + 5 = 20.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "star": "C", "circle": "D", "heart": "D" } },
+    "tokens": [
+      ["star", 0, 0, "A", 1],
+      ["circle", 1, 0, "B", 2],
+      ["circle", 0, -1, "B", 3],
+      ["circle", -1, 1, "B", 4],
+      ["heart", 1, -1, "B", 5],
+      ["heart", -1, 0, "B", 6],
+      ["heart", 0, 1, "B", 7]
+    ],
+    "expected": {
+      "A": { "tokens": { "star": 20 } },
+      "B": { "tokens": { "circle": 0, "heart": 0 } }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "C-simultaneous-001",
+    "rule": "§9.4 résolution simultanée",
+    "description": "Étoile de B bloquée par 3 ronds actifs de A qu'elle absorbe : chacun perd ses propres points, les deux effets restent appliqués.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "star": "C", "circle": "C" } },
+    "tokens": [
+      ["circle", 1, 0, "A", 1],
+      ["circle", 0, -1, "A", 2],
+      ["circle", -1, 1, "A", 3],
+      ["star", 0, 0, "B", 4]
+    ],
+    "expected": {
+      "A": { "tokens": { "circle": 0 }, "total": 0 },
+      "B": { "tokens": { "star": 0 }, "total": 0 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  }
+]

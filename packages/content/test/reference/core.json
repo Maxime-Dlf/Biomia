@@ -1,0 +1,168 @@
+[
+  {
+    "id": "core-env-001",
+    "rule": "§8.1, §8.2",
+    "description": "Deux tuiles E0 adjacentes : environnement de 2 (S = 2) au poseur de la tuile la plus récente (B).",
+    "config": { "camps": ["A", "B"], "threshold": 2 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "B", "seq": 2 }
+    ],
+    "expected": { "A": { "environments": 0, "total": 0 }, "B": { "environments": 2, "total": 2 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-env-002",
+    "rule": "§8.1",
+    "description": "Une bicolore compte 1 dans chacun de ses deux environnements : E0 {X, Y} à B (seq 2), E1 {X, Z} à A (seq 3).",
+    "config": { "camps": ["A", "B"], "threshold": 2 },
+    "tiles": [
+      { "q": 0, "r": 0, "bi": ["E0", "E1"], "rotation": 0, "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "B", "seq": 2 },
+      { "q": -1, "r": 0, "mono": "E1", "placedBy": "A", "seq": 3 }
+    ],
+    "expected": { "A": { "environments": 2 }, "B": { "environments": 2 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-env-003",
+    "rule": "§3 rotation, §8.1",
+    "description": "La même bicolore tournée de 3 pas présente E1 à l'est et E0 à l'ouest : aucune arête en contact de même couleur → aucun environnement.",
+    "config": { "camps": ["A", "B"], "threshold": 2 },
+    "tiles": [
+      { "q": 0, "r": 0, "bi": ["E0", "E1"], "rotation": 3, "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "B", "seq": 2 },
+      { "q": -1, "r": 0, "mono": "E1", "placedBy": "A", "seq": 3 }
+    ],
+    "expected": { "A": { "environments": 0 }, "B": { "environments": 0 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-env-004",
+    "rule": "§8.2",
+    "description": "Environnement de 3 avec S = 4 : invalide → 0 point.",
+    "config": { "camps": ["A", "B"], "threshold": 4 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "A", "seq": 3 }
+    ],
+    "expected": { "A": { "environments": 0 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-env-005",
+    "rule": "§8.2",
+    "description": "Une tuile qui fusionne deux environnements en donne la propriété à son poseur : B fusionne {A, A} et {B, B} → 5 à B.",
+    "config": { "camps": ["A", "B"], "threshold": 2 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": 3, "r": 0, "mono": "E0", "placedBy": "B", "seq": 3 },
+      { "q": 4, "r": 0, "mono": "E0", "placedBy": "B", "seq": 4 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "B", "seq": 5 }
+    ],
+    "expected": { "A": { "environments": 0 }, "B": { "environments": 5 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-env-006",
+    "rule": "§8.2",
+    "description": "Un jeton posé ne change jamais la propriété d'un environnement.",
+    "config": { "camps": ["A", "B"], "threshold": 2 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 }
+    ],
+    "tokens": [["circle", 0, 0, "B", 3]],
+    "expected": {
+      "A": { "environments": 2, "total": 2 },
+      "B": { "environments": 0, "tokens": { "circle": 2 }, "total": 2 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-bonus-001",
+    "rule": "§8.4",
+    "description": "Fin de partie : deux environnements E0 de taille 3 ; le plus ancien (A, seq max 3) prend +2, l'autre (B) +1.",
+    "config": { "camps": ["A", "B"], "threshold": 3, "final": true },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "A", "seq": 3 },
+      { "q": 0, "r": 3, "mono": "E0", "placedBy": "B", "seq": 4 },
+      { "q": 1, "r": 3, "mono": "E0", "placedBy": "B", "seq": 5 },
+      { "q": 2, "r": 3, "mono": "E0", "placedBy": "B", "seq": 6 }
+    ],
+    "expected": {
+      "A": { "environments": 3, "endBonuses": 2, "total": 5 },
+      "B": { "environments": 3, "endBonuses": 1, "total": 4 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-bonus-002",
+    "rule": "§8.4",
+    "description": "Même plateau en cours de partie : bonus de fin non appliqués.",
+    "config": { "camps": ["A", "B"], "threshold": 3 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "A", "seq": 3 },
+      { "q": 0, "r": 3, "mono": "E0", "placedBy": "B", "seq": 4 },
+      { "q": 1, "r": 3, "mono": "E0", "placedBy": "B", "seq": 5 },
+      { "q": 2, "r": 3, "mono": "E0", "placedBy": "B", "seq": 6 }
+    ],
+    "expected": { "A": { "endBonuses": 0, "total": 3 }, "B": { "endBonuses": 0, "total": 3 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-bonus-003",
+    "rule": "§8.4",
+    "description": "Un plus grand environnement prime sur l'ancienneté : E0 de 4 (B, récent) → +2, E0 de 3 (A, ancien) → +1 ; un E1 seul (A) → +2.",
+    "config": { "camps": ["A", "B"], "threshold": 2, "final": true },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": 2, "r": 0, "mono": "E0", "placedBy": "A", "seq": 3 },
+      { "q": 0, "r": 3, "mono": "E0", "placedBy": "B", "seq": 4 },
+      { "q": 1, "r": 3, "mono": "E0", "placedBy": "B", "seq": 5 },
+      { "q": 2, "r": 3, "mono": "E0", "placedBy": "B", "seq": 6 },
+      { "q": 3, "r": 3, "mono": "E0", "placedBy": "B", "seq": 7 },
+      { "q": 0, "r": 6, "mono": "E1", "placedBy": "A", "seq": 8 },
+      { "q": 1, "r": 6, "mono": "E1", "placedBy": "A", "seq": 9 }
+    ],
+    "expected": {
+      "A": { "environments": 5, "endBonuses": 3, "total": 8 },
+      "B": { "environments": 4, "endBonuses": 2, "total": 6 }
+    },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-jokers-001",
+    "rule": "§4.2",
+    "description": "Fin de partie : chaque joker restant vaut 1 point.",
+    "config": { "camps": ["A", "B"], "final": true, "jokers": { "A": 3 } },
+    "expected": { "A": { "jokers": 3, "total": 3 }, "B": { "jokers": 0, "total": 0 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "core-jokers-002",
+    "rule": "§4.2, §7.4",
+    "description": "En cours de partie, les jokers ne comptent pas encore.",
+    "config": { "camps": ["A", "B"], "jokers": { "A": 3 } },
+    "expected": { "A": { "jokers": 0, "total": 0 } },
+    "validatedBy": null,
+    "validatedAt": null
+  }
+]

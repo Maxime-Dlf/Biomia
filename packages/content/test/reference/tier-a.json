@@ -1,0 +1,221 @@
+[
+  {
+    "id": "A-square-001",
+    "rule": "§9.2.1",
+    "description": "Trio de carrés mutuellement adjacents complété par B → 9 à B.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "A" } },
+    "tokens": [["square", 0, 0, "A", 1], ["square", 1, 0, "A", 2], ["square", 1, -1, "B", 3]],
+    "expected": { "A": { "tokens": { "square": 0 } }, "B": { "tokens": { "square": 9 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-square-002",
+    "rule": "§9.2.1",
+    "description": "Losange : le 4ᵉ carré ne trouve plus de carrés libres → neutre, pas d'invalidation.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "A" } },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["square", 1, -1, "B", 3],
+      ["square", 0, 1, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "square": 0 } }, "B": { "tokens": { "square": 9 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-square-003",
+    "rule": "§9.2.1, §9.0",
+    "description": "6 carrés : s3 complète {s1,s2,s3}, s4 et s5 restent libres, s6 complète {s4,s5,s6} → 2 trios.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "A" } },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["square", 0, 1, "A", 3],
+      ["square", 1, 1, "A", 4],
+      ["square", 2, 0, "A", 5],
+      ["square", 2, 1, "A", 6]
+    ],
+    "expected": { "A": { "tokens": { "square": 18 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-square-004",
+    "rule": "§9.0 chronologique",
+    "description": "s4 en (0,0) peut compléter {s1,s2} ou {s2,s3} : on choisit le motif dont l'élément le plus récent est le plus ancien ({s1,s2}). s3 reste libre et s6 complète {s3,s5,s6} → 2 trios.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "A" } },
+    "tokens": [
+      ["square", 1, 0, "A", 1],
+      ["square", 1, -1, "A", 2],
+      ["square", 0, -1, "A", 3],
+      ["square", 0, 0, "A", 4],
+      ["square", -1, -1, "A", 5],
+      ["square", -1, 0, "A", 6]
+    ],
+    "expected": { "A": { "tokens": { "square": 18 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-triangle-001",
+    "rule": "§9.2.2",
+    "description": "Fleur de 7 tuiles : le triangle central n'est pas en bordure → invalidé ; chaîne de bordure de 2 → 4 à B (plus récent).",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "A" } },
+    "fill": [[0, 0], [1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]],
+    "tokens": [["triangle", 0, 0, "A", 1], ["triangle", 1, 0, "A", 2], ["triangle", 1, -1, "B", 3]],
+    "expected": { "A": { "tokens": { "triangle": 0 } }, "B": { "tokens": { "triangle": 4 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-triangle-002",
+    "rule": "§9.2.2",
+    "description": "Triangle de bordure isolé : chaîne de 1 → en attente, 0.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "A" } },
+    "tokens": [["triangle", 0, 0, "A", 1]],
+    "expected": { "A": { "tokens": { "triangle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-triangle-003",
+    "rule": "§9.2.2",
+    "description": "Chaîne de bordure de 7 : 6 et plus → 24.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "A" } },
+    "tokens": [
+      ["triangle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "A", 2],
+      ["triangle", 2, 0, "A", 3],
+      ["triangle", 3, 0, "A", 4],
+      ["triangle", 4, 0, "A", 5],
+      ["triangle", 5, 0, "A", 6],
+      ["triangle", 6, 0, "A", 7]
+    ],
+    "expected": { "A": { "tokens": { "triangle": 24 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-triangle-004",
+    "rule": "§9.2.2",
+    "description": "Chaîne de bordure de 3 au poseur du triangle le plus récent (A, seq 3) → 8.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "A" } },
+    "tokens": [["triangle", 0, 0, "A", 1], ["triangle", 1, 0, "B", 2], ["triangle", 2, 0, "A", 3]],
+    "expected": { "A": { "tokens": { "triangle": 8 } }, "B": { "tokens": { "triangle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-heart-001",
+    "rule": "§9.2.3",
+    "description": "Deux cœurs à distance 2 avec la voisine commune (1,0) occupée par une tuile → paire de 6 au plus récent (B).",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "A" } },
+    "fill": [[1, 0]],
+    "tokens": [["heart", 0, 0, "A", 1], ["heart", 2, 0, "B", 2]],
+    "expected": { "A": { "tokens": { "heart": 0 } }, "B": { "tokens": { "heart": 6 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-heart-002",
+    "rule": "§9.2.3",
+    "description": "Même position sans tuile sur la voisine commune : pas de paire.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "A" } },
+    "tokens": [["heart", 0, 0, "A", 1], ["heart", 2, 0, "B", 2]],
+    "expected": { "A": { "tokens": { "heart": 0 } }, "B": { "tokens": { "heart": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-heart-003",
+    "rule": "§9.2.3",
+    "description": "Un cœur avec un cœur adjacent est invalidé : (1,0) ne peut pas s'apparier avec (3,0).",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "A" } },
+    "fill": [[2, 0]],
+    "tokens": [["heart", 0, 0, "A", 1], ["heart", 1, 0, "A", 2], ["heart", 3, 0, "A", 3]],
+    "expected": { "A": { "tokens": { "heart": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-heart-004",
+    "rule": "§9.2.3, §9.0",
+    "description": "s3 en (2,0) peut s'apparier avec s1 ou s2 : il prend le plus ancien (s1). s2 reste libre et s'apparie avec s4 → B 6 et A 6.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "A" } },
+    "fill": [[1, 0], [3, 0], [5, 0]],
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 4, 0, "B", 2],
+      ["heart", 2, 0, "B", 3],
+      ["heart", 6, 0, "A", 4]
+    ],
+    "expected": { "A": { "tokens": { "heart": 6 } }, "B": { "tokens": { "heart": 6 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-circle-001",
+    "rule": "§9.2.4",
+    "description": "Clan de 3 → 6 au plus récent (B) ; clan de 2 de A → en attente.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "A" } },
+    "tokens": [
+      ["circle", 0, 0, "A", 1],
+      ["circle", 1, 0, "A", 2],
+      ["circle", 2, 0, "B", 3],
+      ["circle", 5, 0, "A", 4],
+      ["circle", 6, 0, "A", 5]
+    ],
+    "expected": { "A": { "tokens": { "circle": 0 } }, "B": { "tokens": { "circle": 6 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-circle-002",
+    "rule": "§9.2.4",
+    "description": "Clan de 5 → 17 ; clan de 6 → détruit, tous invalidés.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "A" } },
+    "tokens": [
+      ["circle", 0, 0, "A", 1],
+      ["circle", 1, 0, "A", 2],
+      ["circle", 2, 0, "A", 3],
+      ["circle", 3, 0, "A", 4],
+      ["circle", 4, 0, "A", 5],
+      ["circle", 0, 3, "B", 6],
+      ["circle", 1, 3, "B", 7],
+      ["circle", 2, 3, "B", 8],
+      ["circle", 3, 3, "B", 9],
+      ["circle", 4, 3, "B", 10],
+      ["circle", 5, 3, "B", 11]
+    ],
+    "expected": { "A": { "tokens": { "circle": 17 } }, "B": { "tokens": { "circle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-star-001",
+    "rule": "§9.2.5",
+    "description": "Balise : tuiles voisines E1 et bicolore E2/E3 → b = 3 → 9. La couleur de la tuile de l'étoile (E0) ne compte pas.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "star": "A" } },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E1", "placedBy": "A", "seq": 2 },
+      { "q": -1, "r": 0, "bi": ["E2", "E3"], "placedBy": "B", "seq": 3 }
+    ],
+    "tokens": [["star", 0, 0, "A", 4]],
+    "expected": { "A": { "tokens": { "star": 9 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "A-star-002",
+    "rule": "§9.2.5",
+    "description": "Étoile sans tuile voisine : b = 0 → 0.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "star": "A" } },
+    "tokens": [["star", 0, 0, "A", 1]],
+    "expected": { "A": { "tokens": { "star": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  }
+]

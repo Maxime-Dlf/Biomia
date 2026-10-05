@@ -1,0 +1,242 @@
+[
+  {
+    "id": "B-square-001",
+    "rule": "§9.3.1",
+    "description": "Losange (deux triangles partageant l'arête (0,0)-(1,0)) complété par B → 14 à B.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "B" } },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["square", 1, -1, "A", 3],
+      ["square", 0, 1, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "square": 0 } }, "B": { "tokens": { "square": 14 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-square-002",
+    "rule": "§9.3.1",
+    "description": "Trois carrés en triangle : pas de losange → neutres.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "B" } },
+    "tokens": [["square", 0, 0, "A", 1], ["square", 1, 0, "A", 2], ["square", 1, -1, "A", 3]],
+    "expected": { "A": { "tokens": { "square": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-square-003",
+    "rule": "§9.3.1",
+    "description": "5 carrés : un losange (14) et un carré en trop, neutre (pas d'invalidation).",
+    "config": { "camps": ["A", "B"], "tierByShape": { "square": "B" } },
+    "tokens": [
+      ["square", 0, 0, "A", 1],
+      ["square", 1, 0, "A", 2],
+      ["square", 1, -1, "A", 3],
+      ["square", 0, 1, "A", 4],
+      ["square", 2, 0, "A", 5]
+    ],
+    "expected": { "A": { "tokens": { "square": 14 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-triangle-001",
+    "rule": "§9.3.2",
+    "description": "Chevron de 3, famille {0,1} : (0,0) +E (1,0) +NE (2,-1) → 6.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "B" } },
+    "tokens": [["triangle", 0, 0, "A", 1], ["triangle", 1, 0, "A", 2], ["triangle", 2, -1, "A", 3]],
+    "expected": { "A": { "tokens": { "triangle": 6 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-triangle-002",
+    "rule": "§9.3.2",
+    "description": "Chevron de 5 → 15.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "B" } },
+    "tokens": [
+      ["triangle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "A", 2],
+      ["triangle", 2, -1, "A", 3],
+      ["triangle", 3, -1, "A", 4],
+      ["triangle", 4, -2, "A", 5]
+    ],
+    "expected": { "A": { "tokens": { "triangle": 15 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-triangle-003",
+    "rule": "§9.3.2",
+    "description": "Ligne droite de 3 : ce n'est pas un chevron → neutre.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "B" } },
+    "tokens": [["triangle", 0, 0, "A", 1], ["triangle", 1, 0, "A", 2], ["triangle", 2, 0, "A", 3]],
+    "expected": { "A": { "tokens": { "triangle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-triangle-004",
+    "rule": "§9.3.2",
+    "description": "Chevron de 3 de A prolongé par B : chevron de 4 → 10 à B.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "B" } },
+    "tokens": [
+      ["triangle", 0, 0, "A", 1],
+      ["triangle", 1, 0, "A", 2],
+      ["triangle", 2, -1, "A", 3],
+      ["triangle", 3, -1, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "triangle": 0 } }, "B": { "tokens": { "triangle": 10 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-triangle-005",
+    "rule": "§9.3.2",
+    "description": "Trois triangles en triangle compact : aucun chevron (virages à 120° impossibles) → neutres.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "triangle": "B" } },
+    "tokens": [["triangle", 0, 0, "A", 1], ["triangle", 1, 0, "A", 2], ["triangle", 1, -1, "A", 3]],
+    "expected": { "A": { "tokens": { "triangle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-heart-001",
+    "rule": "§9.3.3",
+    "description": "Arbre : cœur central avec 3 voisins non adjacents entre eux → 1 cœur ramifié → 12.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "B" } },
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 1, 0, "A", 2],
+      ["heart", -1, 1, "A", 3],
+      ["heart", 0, -1, "A", 4]
+    ],
+    "expected": { "A": { "tokens": { "heart": 12 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-heart-002",
+    "rule": "§9.3.3",
+    "description": "B ferme une boucle dans l'arbre de A : 5 nœuds, 6 arêtes → composante invalidée en entier.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "B" } },
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 1, 0, "A", 2],
+      ["heart", -1, 1, "A", 3],
+      ["heart", 0, -1, "A", 4],
+      ["heart", 1, -1, "B", 5]
+    ],
+    "expected": { "A": { "tokens": { "heart": 0 } }, "B": { "tokens": { "heart": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-heart-003",
+    "rule": "§9.3.3",
+    "description": "Chaîne de 4 sans ramification → 0 (en attente).",
+    "config": { "camps": ["A", "B"], "tierByShape": { "heart": "B" } },
+    "tokens": [
+      ["heart", 0, 0, "A", 1],
+      ["heart", 1, 0, "A", 2],
+      ["heart", 2, 0, "A", 3],
+      ["heart", 3, 0, "A", 4]
+    ],
+    "expected": { "A": { "tokens": { "heart": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-circle-001",
+    "rule": "§9.3.4",
+    "description": "Couronne de 4 ronds autour d'une tuile centrale portant un carré → 8.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "B" } },
+    "tokens": [
+      ["square", 0, 0, "B", 1],
+      ["circle", 1, 0, "A", 2],
+      ["circle", 1, -1, "A", 3],
+      ["circle", 0, -1, "A", 4],
+      ["circle", -1, 0, "A", 5]
+    ],
+    "expected": { "A": { "tokens": { "circle": 8 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-circle-002",
+    "rule": "§9.3.4",
+    "description": "Couronne de 6 ronds autour d'une tuile sans jeton → 22.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "B" } },
+    "fill": [[0, 0]],
+    "tokens": [
+      ["circle", 1, 0, "A", 1],
+      ["circle", 1, -1, "A", 2],
+      ["circle", 0, -1, "A", 3],
+      ["circle", -1, 0, "A", 4],
+      ["circle", -1, 1, "A", 5],
+      ["circle", 0, 1, "A", 6]
+    ],
+    "expected": { "A": { "tokens": { "circle": 22 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-circle-003",
+    "rule": "§9.3.4",
+    "description": "3 ronds autour d'un centre : k < 4 → neutres.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "B" } },
+    "fill": [[0, 0]],
+    "tokens": [["circle", 1, 0, "A", 1], ["circle", 1, -1, "A", 2], ["circle", 0, -1, "A", 3]],
+    "expected": { "A": { "tokens": { "circle": 0 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-circle-004",
+    "rule": "§9.3.4",
+    "description": "Couronne au poseur du rond le plus récent (B) → 8.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "circle": "B" } },
+    "fill": [[0, 0]],
+    "tokens": [
+      ["circle", 1, 0, "A", 1],
+      ["circle", 1, -1, "A", 2],
+      ["circle", 0, -1, "A", 3],
+      ["circle", -1, 0, "B", 4]
+    ],
+    "expected": { "A": { "tokens": { "circle": 0 } }, "B": { "tokens": { "circle": 8 } } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-star-001",
+    "rule": "§9.3.5",
+    "description": "Pont stellaire : environnements valides E0 (tuile de l'étoile) et E1 (voisine) → p = 2 → 8.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "star": "B" }, "threshold": 2 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": -1, "r": 0, "mono": "E1", "placedBy": "A", "seq": 3 },
+      { "q": -2, "r": 0, "mono": "E1", "placedBy": "A", "seq": 4 }
+    ],
+    "tokens": [["star", 0, 0, "A", 5]],
+    "expected": { "A": { "tokens": { "star": 8 }, "environments": 4, "total": 12 } },
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  {
+    "id": "B-star-002",
+    "rule": "§9.3.5",
+    "description": "Une seule couleur d'environnement valide → p < 2 → 0.",
+    "config": { "camps": ["A", "B"], "tierByShape": { "star": "B" }, "threshold": 2 },
+    "tiles": [
+      { "q": 0, "r": 0, "mono": "E0", "placedBy": "A", "seq": 1 },
+      { "q": 1, "r": 0, "mono": "E0", "placedBy": "A", "seq": 2 },
+      { "q": -1, "r": 0, "mono": "E1", "placedBy": "A", "seq": 3 }
+    ],
+    "tokens": [["star", 0, 0, "A", 4]],
+    "expected": { "A": { "tokens": { "star": 0 }, "environments": 2 } },
+    "validatedBy": null,
+    "validatedAt": null
+  }
+]
