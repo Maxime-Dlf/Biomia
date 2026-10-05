@@ -12,7 +12,8 @@ async function openScene(page: Page, scene: string, profile: string): Promise<st
   });
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`/?scene=${scene}&profile=${profile}&time=12&particles=0`);
-  await expect(page.locator('canvas')).toBeVisible();
+  // La scène de 1 000 tuiles est générée dans la page : plusieurs secondes sans GPU (CI).
+  await expect(page.locator('canvas')).toBeVisible({ timeout: 30_000 });
   // Quelques images pour que le plateau soit dessiné et recentré.
   await page.waitForTimeout(600);
   return errors;
