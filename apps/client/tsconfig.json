@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2023", "dom", "dom.iterable"],
+    "types": ["svelte", "vite/client"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "test/**/*.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
+}

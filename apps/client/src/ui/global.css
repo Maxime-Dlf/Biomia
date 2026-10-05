@@ -1,0 +1,79 @@
+:root {
+  --panel: rgb(22 30 25 / 0.92);
+  --border: #3c4a41;
+  --accent: #ffd11a;
+  --text: #f2efe6;
+  color-scheme: dark;
+}
+
+:root.high-contrast {
+  --panel: #000;
+  --border: #fff;
+  --text: #fff;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #1d2621;
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+}
+
+/* L'interface DOM est au-dessus du canvas (§14.2) ; seuls les éléments interactifs captent les clics. */
+[data-interactive] {
+  pointer-events: auto;
+}
+
+button,
+select,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: #2b3830;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: #36463c;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primary {
+  background: #c99a12;
+  border-color: #ffd11a;
+  color: #111;
+  font-weight: bold;
+}
+
+button.primary:hover:not(:disabled) {
+  background: #e0ad16;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+select,
+input:not([type]),
+input[type="text"] {
+  background: #222c25;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+}
