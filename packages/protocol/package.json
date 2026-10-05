@@ -1,0 +1,22 @@
+{
+  "name": "@crassecadia/protocol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Messages réseau, schémas Zod et version de protocole (§15.5, §23.2)",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@crassecadia/engine": "workspace:*",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}
