@@ -1,0 +1,13 @@
+# Accès direct avec un nom de domaine (DuckDNS ou domaine payant) : Caddy écoute sur 80 et 443 et
+# obtient lui-même le certificat Let's Encrypt. Les ports 80 et 443 doivent être redirigés vers la
+# machine (deploy/MINT.md, annexe).
+#
+#   cd deploy && docker compose -f docker-compose.yml -f docker-compose.direct.yml up -d --build
+services:
+  web:
+    environment:
+      SITE_ADDRESS: ${DOMAIN}
+    ports: !override
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'

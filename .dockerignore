@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/.turbo
+.turbo
+.git
+archive
+apps/client/e2e/.results
+**/*.log
+deploy/.env*
+!deploy/.env.example

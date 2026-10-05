@@ -1,0 +1,38 @@
+# Hébergement (§16.6). Par défaut : derrière Tailscale Funnel, Caddy n'écoute qu'en local sur le
+# port 8080 (deploy/MINT.md). Accès direct avec un nom de domaine : ajouter
+# `-f docker-compose.direct.yml`.
+#
+#   cd deploy && docker compose up -d --build
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: deploy/server.Dockerfile
+    restart: unless-stopped
+    environment:
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
+      REGION: ${REGION:-eu}
+      ROOM_TILE_BUDGET: ${ROOM_TILE_BUDGET:-200000}
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/web.Dockerfile
+      args:
+        VITE_SERVER_URL: wss://${DOMAIN}/ws
+        VITE_API_URL: https://${DOMAIN}/api
+        VITE_DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
+    restart: unless-stopped
+    depends_on: [server]
+    environment:
+      DOMAIN: ${DOMAIN}
+      SITE_ADDRESS: ${SITE_ADDRESS:-:8080}
+    ports:
+      # Accessible seulement depuis la machine : Tailscale Funnel publie ce port en HTTPS.
+      - '127.0.0.1:8080:8080'
+    volumes:
+      - caddy-data:/data
+
+volumes:
+  caddy-data:

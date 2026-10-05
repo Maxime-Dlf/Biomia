@@ -1,0 +1,44 @@
+# Site et serveur derrière Caddy (§16.6) : client statique, `/ws` (Colyseus) et `/api`, mêmes chemins
+# que les mappings du proxy Discord (§16.2).
+#
+# SITE_ADDRESS :
+#   - `:8080` derrière Tailscale Funnel (hébergement de développement, deploy/MINT.md) : Caddy sert
+#     en HTTP local, Funnel fournit le HTTPS public ;
+#   - le nom de domaine (ex. `crassecadia.io`) en accès direct : Caddy obtient le certificat TLS.
+# DOMAIN : nom public du site, pour la CSP.
+#
+# Aucune directive `log` : pas de journal d'accès, donc aucune adresse IP écrite (§18.3).
+{
+	servers {
+		# Adresse réelle des clients transmise par le relais local (Tailscale) ou le réseau privé.
+		trusted_proxies static private_ranges
+	}
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		# Discord affiche l'Activity dans une iframe (§16.2) ; aucune ressource tierce.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' wss://{$DOMAIN}; frame-ancestors 'self' https://discord.com https://*.discordsays.com"
+	}
+
+	# Liens d'invitation /r/<CODE> (§16.3).
+	@invite path_regexp invite ^/r/([A-Za-z0-9]{6})/?$
+	redir @invite /#/r/{re.invite.1} 302
+
+	handle_path /ws/* {
+		reverse_proxy server:2567
+	}
+	handle /api/* {
+		reverse_proxy server:2567
+	}
+	handle {
+		root * /srv/client
+		try_files {path} /index.html
+		file_server
+	}
+}
